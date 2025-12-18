@@ -1,0 +1,177 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Amit Kumar",
+      "email": "amit.user@gmail.com",
+      "password": "123456",
+      "role": "user",
+      "phone": "9000000001",
+      "address": "Kolkata",
+      "createdAt": "2025-01-05"
+    },
+    {
+      "id": "2",
+      "name": "Neha Sharma",
+      "email": "neha.user@gmail.com",
+      "password": "123456",
+      "role": "user",
+      "phone": "9000000002",
+      "address": "Delhi",
+      "createdAt": "2025-01-06"
+    },
+    {
+      "id": "3",
+      "name": "Rohit Verma",
+      "email": "rohit.doctor@gmail.com",
+      "password": "123456",
+      "role": "provider",
+      "phone": "9000000003",
+      "address": "Mumbai",
+      "createdAt": "2025-01-07"
+    },
+    {
+      "id": "4",
+      "name": "Suresh Yadav",
+      "email": "suresh.electrician@gmail.com",
+      "password": "123456",
+      "role": "provider",
+      "phone": "9000000004",
+      "address": "Delhi",
+      "createdAt": "2025-01-08"
+    },
+    {
+      "id": "5",
+      "name": "Admin User",
+      "email": "admin@easyfind.com",
+      "password": "admin123",
+      "role": "admin",
+      "phone": "9999999999",
+      "address": "Head Office",
+      "createdAt": "2025-01-01"
+    }
+  ],
+  "serviceProviders": [
+    {
+      "id": "101",
+      "userId": 3,
+      "category": "Doctor",
+      "specialization": "General Physician",
+      "experience": 6,
+      "documents": [
+        "mbbs.pdf",
+        "license.pdf"
+      ],
+      "verificationStatus": "verified",
+      "available": true,
+      "rating": 4.8,
+      "serviceArea": "Mumbai",
+      "slots": [
+        "10:00 AM",
+        "11:00 AM",
+        "02:00 PM"
+      ]
+    },
+    {
+      "id": "102",
+      "userId": 4,
+      "category": "Electrician",
+      "specialization": "Home Wiring",
+      "experience": 4,
+      "documents": [
+        "electrician_license.pdf"
+      ],
+      "verificationStatus": "verified",
+      "available": true,
+      "rating": 4.4,
+      "serviceArea": "Delhi",
+      "slots": [
+        "09:00 AM",
+        "01:00 PM",
+        "05:00 PM"
+      ]
+    }
+  ],
+  "appointments": [
+    {
+      "id": "201",
+      "userId": 1,
+      "providerId": 101,
+      "slot": "10:00 AM",
+      "date": "2025-02-20",
+      "status": "completed"
+    },
+    {
+      "id": "202",
+      "userId": 2,
+      "providerId": 101,
+      "slot": "11:00 AM",
+      "date": "2025-02-21",
+      "status": "approved"
+    }
+  ],
+  "chats": [
+    {
+      "id": "301",
+      "appointmentId": 201,
+      "userId": 1,
+      "providerId": 101,
+      "messages": [
+        {
+          "senderRole": "user",
+          "text": "Hello Doctor, I am not feeling well.",
+          "timestamp": "2025-02-20T10:01"
+        },
+        {
+          "senderRole": "provider",
+          "text": "Please describe your symptoms.",
+          "timestamp": "2025-02-20T10:02"
+        }
+      ]
+    }
+  ],
+  "urgentRequests": [
+    {
+      "id": "401",
+      "userId": 2,
+      "category": "Electrician",
+      "description": "Short circuit in living room",
+      "status": "closed",
+      "createdAt": "2025-02-18T09:30",
+      "assignedProviderId": "101"
+    },
+    {
+      "id": "402",
+      "userId": 1,
+      "category": "Electrician",
+      "description": "Power outage at home",
+      "status": "accepted",
+      "createdAt": "2025-02-17T18:00",
+      "assignedProviderId": 102
+    }
+  ],
+  "reviews": [
+    {
+      "id": "501",
+      "appointmentId": 201,
+      "userId": 1,
+      "providerId": 101,
+      "rating": 5,
+      "comment": "Doctor was very polite and helpful."
+    }
+  ],
+  "notifications": [
+    {
+      "id": "601",
+      "userId": 2,
+      "message": "Your appointment has been approved",
+      "read": false
+    },
+    {
+      "id": "602",
+      "userId": 1,
+      "message": "Urgent request accepted by electrician",
+      "read": true
+    }
+  ]
+}

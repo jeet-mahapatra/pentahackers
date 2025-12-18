@@ -1,8 +1,8 @@
 import express from 'express';
-import connectToMongo from './config/db.js';
+import connectDB from './config/db.js';
 
 // connect mongodb
-connectToMongo();
+connectDB();
 
 const app = express();
 
