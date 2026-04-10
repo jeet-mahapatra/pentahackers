@@ -1,17 +1,14 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config()
+const mongoURL = process.env.MONGO_URL;
 
-
-const connectDB = async () => {
+const connectToMongo = async () => {
     try {
-        await mongoose.connect(`${process.env.MONGODB_URI}/easyfind`)
-        console.log(`mongoDB Connected`);
-        
+        await mongoose.connect(mongoURL);
+        console.log("✅ Connected to MongoDB successfully");
     } catch (error) {
-        console.log(`MongoDB connection Error`, error);
-        
+        console.error("❌ Error connecting to MongoDB:", error);
+        process.exit(1); // Exit app on error
     }
 }
 
-export default connectDB;
+export default connectToMongo;
