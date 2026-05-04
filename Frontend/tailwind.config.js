@@ -1,11 +1,15 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
-    './index.html',
-    './src/**/*.{js,ts,jsx,tsx}',
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}", // ✅ IMPORTANT
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primaryBg: "#070A1A", // your landing background
+      },
+    },
   },
   plugins: [],
 };

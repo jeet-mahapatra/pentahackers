@@ -1,171 +1,575 @@
 import express from "express";
-import User from "../model/User.js";
+import User from "../model/User.model.js"
+import Provider from "../model/Provider.model.js"
 import { check, validationResult } from "express-validator";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendNotificationEmail } from "../utils/emailService.js";
 import { getOTPTemplate } from "../utils/emailTemplates.js";
 import validator from "validator";
+import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import fs from "fs"
+import { upload } from "../Middleware/Multer.js";
+
 
 const router = express.Router();
 
-const JWT_SECRET = process.env.SECRET_KEY;
+const JWT_SECRET = process.env.JWT_SECRET_KEY;
+console.log( process.env.JWT_SECRET_KEY)
 
-// Routes 1 : Create a new user by POST "/api/auth/register"
+
+
+// REGISTER USER
+
+// router.post(
+//   "/register/user",
+//   [
+//     check("name", "Name required").notEmpty(),
+//     check("email", "Valid email required").isEmail(),
+//     check("password", "Min 6 characters").isLength({ min: 6 }),
+//   ],
+//   async (req, res) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       return res.status(400).json({ success: false, errors: errors.array() });
+//     }
+
+//     try {
+//       const { name, email, password } = req.body;
+
+//       const username = name.trim().toLowerCase();
+//       const normalizedEmail = email.toLowerCase();
+
+//       const existingUser = await User.findOne({
+//         $or: [{ username }, { email: normalizedEmail }],
+//       });
+
+//       if (existingUser) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "User already exists",
+//         });
+//       }
+
+//       const hashedPassword = await bcrypt.hash(password, 10);
+
+//       const user = await User.create({
+//         username,
+//         email: normalizedEmail,
+//         password: hashedPassword,
+//       });
+
+//       const token = jwt.sign(
+//         { id: user._id, role: "user" },
+//         JWT_SECRET,
+//         { expiresIn: "1h" }
+//       );
+
+//       return res.status(201).json({
+//         success: true,
+//         message: "User registered successfully",
+//         token,
+//         userId: user._id,
+//       });
+
+//     } catch (error) {
+//       console.error("USER REGISTER ERROR:", error.message);
+//       return res.status(500).json({ success: false, message: "Server error" });
+//     }
+//   }
+// );
+
+
+
 router.post(
-    "/register",
-    [
-        // validation
-        check("username", "Please enter a valid username").notEmpty(),
-        check("email", "Please enter a valid email").isEmail().normalizeEmail({ gmail_remove_dots: false }),
-        check("password", "Please enter a valid password").isLength({ min: 6 }),
-    ],
-    async (req, res) => {
-        // validationResult function checks whether any error occurs or not and return an object
-        const error = validationResult(req);
-
-        // If some error occurs, then return the error
-        if (!error.isEmpty()) {
-            return res.status(400).json({ error: error.array() });
-        }
-
-        let success = false;
-
-        try {
-            // Check if username OR email already exists
-            const existingUser = await User.findOne({ username: req.body.username });
-            const existingEmail = await User.findOne({ email: req.body.email });
-
-            if (existingUser) {
-                return res
-                    .status(400)
-                    .json({
-                        success,
-                        error: "A user with this username already exists.",
-                    });
-            }
-
-            if (existingEmail) {
-                return res
-                    .status(400)
-                    .json({ success, error: "A user with this email already exists." });
-            }
-
-            // To hash a password and store in DB
-            const salt = await bcrypt.genSalt(10);
-            const securePassword = await bcrypt.hash(req.body.password, salt);
-
-            // Create new user and save data into database
-            const user = await User.create({
-                username: req.body.username,
-                email: req.body.email,
-                password: securePassword,
-            });
-
-            // JWT payload for secure authentication
-            const payload = {
-                user: {
-                    id: user.id,
-                    role: user.role,
-                },
-            };
-
-            // Produces a signed JSON Web Token
-            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
-
-            res.json({
-                success: true,
-                authToken: token,
-                role: user.role,
-                username: user.username,
-                userId: user.id,
-                email: user.email
-            });
-        } catch (error) {
-            console.error(error.message);
-            // Added check for duplicate key error (if validation missed it)
-            if (error.code === 11000) {
-                return res
-                    .status(400)
-                    .json({ success, error: "Username or Email already in use." });
-            }
-            res.status(500).json({ success, error: "Internal Server Error" });
-        }
+  "/register/user",
+  [
+    check("name", "Name required").notEmpty(),
+    check("email", "Valid email required").isEmail(),
+    check("password", "Min 6 characters").isLength({ min: 6 }),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
     }
+
+    try {
+      const { name, email, password } = req.body;
+
+      const username = name.trim().toLowerCase();
+      const normalizedEmail = email.toLowerCase();
+
+      const existingUser = await User.findOne({
+        $or: [{ username }, { email: normalizedEmail }],
+      });
+
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: "User already exists",
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const user = await User.create({
+        username,
+        email: normalizedEmail,
+        password: hashedPassword,
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "User registered successfully",
+        userId: user._id,
+      });
+
+    } catch (error) {
+      console.error("USER REGISTER ERROR:", error.message);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+  }
 );
 
-// Routes 2: Login a user by POST "/api/auth/login"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// router.post(
+//   "/register/provider",
+//   upload.fields([
+//     { name: "idProof", maxCount: 1 },
+//     { name: "photoproof", maxCount: 1 },
+//   ]),
+//   [
+//     check("name", "Name required").notEmpty(),
+//     check("email", "Valid email required").isEmail(),
+//     check("password", "Min 6 characters").isLength({ min: 6 }),
+//   ],
+//   async (req, res) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       return res.status(400).json({ success: false, errors: errors.array() });
+//     }
+
+//     try {
+//       const { name, email, password, serviceType, address } = req.body;
+
+//       const username = name.trim().toLowerCase();
+//       const normalizedEmail = email.toLowerCase();
+
+//       const existingProvider = await Provider.findOne({
+//         $or: [{ username }, { email: normalizedEmail }],
+//       });
+
+//       if (existingProvider) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Provider already exists",
+//         });
+//       }
+
+//       // FILES
+//       const idProofPath = req.files?.idProof?.[0]?.path;
+//       const photoProofPath = req.files?.photoproof?.[0]?.path;
+
+//       if (!idProofPath || !photoProofPath) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Documents are required",
+//         });
+//       }
+
+//       // UPLOAD CLOUDINARY
+//       const idProofUpload = await uploadOnCloudinary(idProofPath);
+//       const photoProofUpload = await uploadOnCloudinary(photoProofPath);
+
+//       if (!idProofUpload || !photoProofUpload) {
+//         return res.status(500).json({
+//           success: false,
+//           message: "File upload failed",
+//         });
+//       }
+
+//       const hashedPassword = await bcrypt.hash(password, 10);
+
+//       const provider = await Provider.create({
+//         username,
+//         email: normalizedEmail,
+//         password: hashedPassword,
+//         role: "pending_provider",
+//         serviceType,
+//         address,
+
+//         documents: {
+//           idProof: idProofUpload.secure_url,
+//           photoproof: photoProofUpload.secure_url,
+//         },
+
+//         verificationStatus: "pending",
+//       });
+
+//       const token = jwt.sign(
+//         { id: provider._id, role: "provider" },
+//         JWT_SECRET,
+//         { expiresIn: "1h" }
+//       );
+
+//       return res.status(201).json({
+//         success: true,
+//         message: "Provider registered successfully",
+//         token,
+//         providerId: provider._id,
+//       });
+
+//     } catch (error) {
+//       console.error("PROVIDER REGISTER ERROR:", error.message);
+//       return res.status(500).json({ success: false, message: "Server error" });
+//     }
+//   }
+// );
+
+
+
 router.post(
-    "/login",
-    [
-        // validation
-        check("loginIdentifier", "Please enter a valid username or email")
-            .notEmpty(),
-        check("password", "Please enter a valid password").isLength({ min: 6 }),
-    ],
-    async (req, res) => {
-        // validationResult function checks whether any error occurs or not and return an object
-        const error = validationResult(req);
-
-        // If some error occurs, then return the error
-        if (!error.isEmpty()) {
-            return res.status(400).json({ error: error.array() });
-        }
-
-        const { loginIdentifier, password } = req.body;
-        let success = false;
-
-        try {
-            // Convert username or email to lowercase
-            const sanitizedIdentifier = validator.isEmail(loginIdentifier) ? validator.normalizeEmail(loginIdentifier, { gmail_remove_dots: false }).toLowerCase() : loginIdentifier.toLowerCase();
-
-            // Find user by either username OR email (after converting to lowercase)
-            const existUser = await User.findOne({
-                $or: [
-                    { username: sanitizedIdentifier },
-                    { email: sanitizedIdentifier },
-                ],
-            });
-
-            console.log("existUser : ", existUser);
-            // Check user exist or not
-            if (!existUser) {
-                return res.status(400).json({ success, error: "Invalid Credentials. Please try again." });
-            }
-
-            // Compare password
-            const isMatch = await bcrypt.compare(password, existUser.password);
-
-            // Check password matche or not
-            if (!isMatch) {
-                return res.status(400).json({ success, error: "Invalid Credentials. Please try again." });
-            }
-
-            // JWT payload for secure authentication
-            const payload = {
-                user: {
-                    id: existUser.id,
-                    role: existUser.role,
-                },
-            };
-
-            // Produces a signed JSON Web Token
-            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
-
-            res.json({
-                success: true,
-                authToken: token,
-                role: existUser.role,
-                username: existUser.username,
-                userId: existUser.id,
-                email: existUser.email
-            });
-        } catch (error) {
-            console.error(error.message);
-            res.status(500).json({ success, error: "Internal Server Error" });
-        }
+  "/register/provider",
+  upload.fields([
+    { name: "idProof", maxCount: 1 },
+    { name: "photoproof", maxCount: 1 },
+  ]),
+  [
+    check("name", "Name required").notEmpty(),
+    check("email", "Valid email required").isEmail(),
+    check("password", "Min 6 characters").isLength({ min: 6 }),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
     }
+
+    try {
+      const { name, email, password, serviceType, address } = req.body;
+
+      const username = name.trim().toLowerCase();
+      const normalizedEmail = email.toLowerCase();
+
+      const existingProvider = await Provider.findOne({
+        $or: [{ username }, { email: normalizedEmail }],
+      });
+
+      if (existingProvider) {
+        return res.status(400).json({
+          success: false,
+          message: "Provider already exists",
+        });
+      }
+
+      const idProofPath = req.files?.idProof?.[0]?.path;
+      const photoProofPath = req.files?.photoproof?.[0]?.path;
+
+      if (!idProofPath || !photoProofPath) {
+        return res.status(400).json({
+          success: false,
+          message: "Documents are required",
+        });
+      }
+
+      const idProofUpload = await uploadOnCloudinary(idProofPath);
+      const photoProofUpload = await uploadOnCloudinary(photoProofPath);
+
+      if (!idProofUpload || !photoProofUpload) {
+        return res.status(500).json({
+          success: false,
+          message: "File upload failed",
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const provider = await Provider.create({
+        username,
+        email: normalizedEmail,
+        password: hashedPassword,
+        role: "pending_provider",
+        serviceType,
+        address,
+        documents: {
+          idProof: idProofUpload.secure_url,
+          photoproof: photoProofUpload.secure_url,
+        },
+        verificationStatus: "pending",
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "Provider registered successfully",
+        providerId: provider._id,
+      });
+
+    } catch (error) {
+      console.error("PROVIDER REGISTER ERROR:", error.message);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+  }
 );
+
+
+
+
+
+// router.post(
+//   "/login",
+//   [
+//     check("loginIdentifier", "Username or email required").notEmpty(),
+//     check("password", "Password required").notEmpty(),
+//   ],
+//   async (req, res) => {
+//     const errors = validationResult(req);
+
+//     if (!errors.isEmpty()) {
+//       return res.status(400).json({
+//         success: false,
+//         errors: errors.array(),
+//       });
+//     }
+
+//     try {
+//       const { loginIdentifier, password } = req.body;
+
+//       // ================= NORMALIZE INPUT =================
+//       const sanitized = validator.isEmail(loginIdentifier)
+//         ? validator.normalizeEmail(loginIdentifier).toLowerCase()
+//         : loginIdentifier.toLowerCase();
+
+//       // ================= FIND USER =================
+//       let user = await User.findOne({
+//         $or: [
+//           { username: sanitized },
+//           { email: sanitized }
+//         ],
+//       });
+
+//       let type = "user";
+
+//       if (!user) {
+//         user = await Provider.findOne({
+//           $or: [
+//             { username: sanitized },
+//             { email: sanitized }
+//           ],
+//         });
+
+//         type = "provider";
+//       }
+
+//       if (!user) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Invalid credentials",
+//         });
+//       }
+
+//       // ================= PASSWORD CHECK =================
+//       if (!user.password) {
+//         return res.status(500).json({
+//           success: false,
+//           message: "Password not found in database",
+//         });
+//       }
+
+//       const isMatch = await bcrypt.compare(password, user.password);
+
+//       if (!isMatch) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Invalid credentials",
+//         });
+//       }
+
+//       // ================= JWT TOKEN =================
+//       const token = jwt.sign(
+//         {
+//           user: {
+//             id: user._id,
+//             role: user.role,
+//             type: type,
+//           },
+//         },
+//         process.env.JWT_SECRET_KEY,
+//         { expiresIn: "24h" }
+//       );
+
+//       // ================= COOKIE SETUP =================
+//       res.cookie("token", token, {
+//         httpOnly: true,
+//         secure: false,        // set true in production (HTTPS)
+//         sameSite: "lax",
+//         maxAge: 24 * 60 * 60 * 1000, // 1 day
+//       });
+
+//       return res.status(200).json({
+//         success: true,
+//         message: "Login successful",
+//         user: {
+//           id: user._id,
+//           username: user.username,
+//           role: user.role,
+//           type: type,
+//         },
+//       });
+
+//     } catch (error) {
+//       console.error("LOGIN ERROR:", error);
+
+//       return res.status(500).json({
+//         success: false,
+//         message: "Internal Server Error",
+//       });
+//     }
+//   }
+// );
+
+
+
+
+
+
+
+router.post(
+  "/login",
+  [
+    check("loginIdentifier", "Username or email required").notEmpty(),
+    check("password", "Password required").notEmpty(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array(),
+      });
+    }
+
+    try {
+      const { loginIdentifier, password } = req.body;
+
+      // ================= NORMALIZE INPUT =================
+      const sanitized = validator.isEmail(loginIdentifier)
+        ? validator.normalizeEmail(loginIdentifier).toLowerCase()
+        : loginIdentifier.toLowerCase();
+
+      // ================= FIND USER =================
+      let user = await User.findOne({
+        $or: [
+          { username: sanitized },
+          { email: sanitized }
+        ],
+      });
+
+      if (!user) {
+        user = await Provider.findOne({
+          $or: [
+            { username: sanitized },
+            { email: sanitized }
+          ],
+        });
+      }
+
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid credentials",
+        });
+      }
+
+      // ================= PASSWORD CHECK =================
+      if (!user.password) {
+        return res.status(500).json({
+          success: false,
+          message: "Password not found in database",
+        });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      if (!isMatch) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid credentials",
+        });
+      }
+
+      // ================= DETERMINE ROLE =================
+      const role = user.role; 
+      // MUST be "user" or "provider"
+
+      // ================= JWT TOKEN =================
+      const token = jwt.sign(
+        {
+          id: user._id,
+          role: role,
+        },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: "24h" }
+      );
+
+      // ================= COOKIE SETUP =================
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false, // true in production (HTTPS)
+        sameSite: "lax",
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Login successful",
+        user: {
+          id: user._id,
+          username: user.username,
+          role: role,
+        },
+      });
+
+    } catch (error) {
+      console.error("LOGIN ERROR:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  }
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Routes 3: Login a user by POST "/api/auth/forgot-password"
 router.post(
@@ -309,5 +713,8 @@ router.post(
         }
     }
 );
+
+
+
 
 export default router;
