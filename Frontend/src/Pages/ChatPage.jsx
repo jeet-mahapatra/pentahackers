@@ -208,19 +208,22 @@ export default function ChatPage() {
     const socket = io(SOCKET_URL, { withCredentials: true });
     socketRef.current = socket;
 
-    socket.on("receive_message", (msg) => {
-      setMessages((prev) => {
-        if (prev.find((m) => m._id === msg._id)) return prev;
-        return [...prev, msg];
-      });
-      setConversations((prev) =>
-        prev.map((c) =>
-          c.appointmentId === msg.appointmentId
-            ? { ...c, lastMessage: msg }
-            : c
-        )
-      );
-    });
+    
+socket.on("receive_message", (msg) => {
+  setMessages((prev) => {
+    if (prev.find((m) => m._id === msg._id)) return prev;
+    return [...prev, msg];
+  });
+  setConversations((prev) =>
+    prev.map((c) => {
+      const allIds = c.allAppointmentIds?.map(String) ?? [String(c.appointmentId)];
+      if (allIds.includes(String(msg.appointmentId))) {
+        return { ...c, lastMessage: msg };
+      }
+      return c;
+    })
+  );
+});
 
     socket.on("user_typing", () => setOtherTyping(true));
     socket.on("user_stop_typing", () => setOtherTyping(false));
@@ -240,47 +243,52 @@ export default function ChatPage() {
   }, []);
 
   // ── Select conversation ───────────────────────────────────────
-  const handleSelectConv = async (conv) => {
-    setAccessError(null);
-    setMessages([]);
-    setActiveConv(conv);
-    if (window.innerWidth < 768) setSidebarOpen(false);
+const handleSelectConv = async (conv) => {
+  setAccessError(null);
+  setMessages([]);
+  setActiveConv(conv);
+  if (window.innerWidth < 768) setSidebarOpen(false);
 
-    try {
-      const accessRes = await axios.get(
-        `${API_URL}/chat/access/${conv.appointmentId}`,
-        { withCredentials: true }
-      );
-      setCanSendMessage(accessRes.data.canSendMessage !== false);
+  // Build the comma-separated list for the history endpoint
+  const allIds = conv.allAppointmentIds?.map(String) ?? [conv.appointmentId];
+  const primaryId = String(conv.appointmentId);
 
-      setLoading(true);
-      const { data } = await axios.get(
-        `${API_URL}/chat/history/${conv.appointmentId}`,
-        { withCredentials: true }
-      );
-      if (data.success) setMessages(data.messages);
-      setLoading(false);
+  try {
+    const accessRes = await axios.get(
+      `${API_URL}/chat/access/${primaryId}`,
+      { withCredentials: true }
+    );
+    setCanSendMessage(accessRes.data.canSendMessage !== false);
 
-      socketRef.current?.emit("join_room", {
-        appointmentId: conv.appointmentId,
-      });
+    setLoading(true);
+    const { data } = await axios.get(
+      `${API_URL}/chat/history/${primaryId}?all=${allIds.join(",")}`,
+      { withCredentials: true }
+    );
+    if (data.success) setMessages(data.messages);
+    setLoading(false);
 
-      setConversations((prev) =>
-        prev.map((c) =>
-          c.appointmentId === conv.appointmentId
-            ? { ...c, unreadCount: 0 }
-            : c
-        )
-      );
+    // Join ALL appointment rooms so real-time messages from any of them appear
+    allIds.forEach((id) => {
+      socketRef.current?.emit("join_room", { appointmentId: id });
+    });
 
-      setTimeout(() => textareaRef.current?.focus(), 100);
-    } catch (err) {
-      setLoading(false);
-      setAccessError(
-        err.response?.data?.message || "Unable to access this chat"
-      );
-    }
-  };
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.appointmentId === conv.appointmentId
+          ? { ...c, unreadCount: 0 }
+          : c
+      )
+    );
+
+    setTimeout(() => textareaRef.current?.focus(), 100);
+  } catch (err) {
+    setLoading(false);
+    setAccessError(
+      err.response?.data?.message || "Unable to access this chat"
+    );
+  }
+};
 
   // ── Send message ─────────────────────────────────────────────
   const handleSend = () => {
