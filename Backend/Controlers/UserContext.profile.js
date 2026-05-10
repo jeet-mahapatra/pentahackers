@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 import User from "../model/User.model.js";
 import Provider from "../model/Provider.model.js";
 

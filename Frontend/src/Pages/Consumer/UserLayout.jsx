@@ -1,4 +1,3 @@
-
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import axios from "axios";
@@ -103,6 +102,12 @@ export const UserLayout = () => {
             <li>
               <NavLink to="/user/reviews" className={navClass} onClick={() => setSidebarOpen(false)}>
                 ⭐ My Reviews
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink to="/user/support" className={navClass} onClick={() => setSidebarOpen(false)}>
+                📞 Support
               </NavLink>
             </li>
 

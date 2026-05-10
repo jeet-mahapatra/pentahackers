@@ -163,6 +163,12 @@ const ProviderLayout = () => {
                 </li>
 
                 <li>
+                  <NavLink to="/provider/support" className={navClass} onClick={() => setSidebarOpen(false)}>
+                    <span>👥 Support</span>
+                  </NavLink>
+                </li>
+
+                <li>
                   <NavLink to="/provider/profile" className={navClass} onClick={() => setSidebarOpen(false)}>
                     <span>👤 Profile</span>
                   </NavLink>

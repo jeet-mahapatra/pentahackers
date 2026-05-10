@@ -1,82 +1,3 @@
-// import express from 'express';
-// import 'dotenv/config';
-// import cors from "cors"; 
-// import cookieParser from "cookie-parser";
-// import connectToMongo from './config/db.js';
-// import authRouter from './router/auth.js';
-// import appointmentRoutes from "./router/routes.appointments.js"
-// import profileContext from "./router/ProfileContextApi.router.js"
-// import ProviderMyService from "./router/Provider.service.Router.js"
-// import ProviderProfile from "./router/Provider.profile.Routes.js"
-// import VerifyedProvidorForRequest from "./router/UserApprovedProviderRequest.Routers.js"
-// import reviewRoutes from "./router/UserReview.router.js"
-
-
-// // USER DASHDORD 
-
-// import UserDashboardDetails from "./router/UserAppointment.Router.js"
-
-
-
-
-// // connect mongodb
-
-// connectToMongo();
-
-// const app = express();
-// app.use(express.json({limit:"30kb"}))
-// app.use(cors({
-//   origin: "http://localhost:5173",
-//   credentials: true
-// }));
-// app.use(cookieParser());
-
-// const PORT = process.env.PORT ;
-
-// app.use('/api/auth', authRouter);
-
-// app.use("/api/appointments",appointmentRoutes)
-
-// app.use("/api/context", profileContext);
-
-// app.use("/api/myservice", ProviderMyService);
-
-// app.use("/api/providerProfile",ProviderProfile)
-
-// app.use("/api/providerProfile",VerifyedProvidorForRequest)
-
-// app.use("/api/user",UserDashboardDetails)
-
-// app.use("/api/reviews", reviewRoutes);
-
-
-
-
-// app.get('/', (req, res)=>{
-//     res.send("Hello World.");
-// })
-
-
-
-// app.listen(PORT,()=>{
-//     console.log(`Example app listening on port ${PORT}`);
-// })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import express from 'express';
 import 'dotenv/config';
 import cors from "cors"; 
@@ -89,6 +10,9 @@ import ProviderMyService from "./router/Provider.service.Router.js"
 import ProviderProfile from "./router/Provider.profile.Routes.js"
 import VerifyedProvidorForRequest from "./router/UserApprovedProviderRequest.Routers.js"
 import reviewRoutes from "./router/UserReview.router.js"
+import adminRoutes from "./router/admin.routes.js";
+import conciergeRoutes from "./router/concierge.routes.js";
+
 
 // USER DASHDORD 
 import UserDashboardDetails from "./router/UserAppointment.Router.js"
@@ -123,6 +47,8 @@ app.use("/api/providerProfile",ProviderProfile)
 app.use("/api/providerProfile",VerifyedProvidorForRequest)
 app.use("/api/user",UserDashboardDetails)
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/concierge", conciergeRoutes);
 
 // ── NEW: Chat REST routes ──────────────────────────────────────
 app.use("/api/chat", chatRouter);

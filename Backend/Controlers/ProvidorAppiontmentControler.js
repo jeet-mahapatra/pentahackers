@@ -1,4 +1,3 @@
-
 import {Appointment} from "../model/Appiontment.model.js"
 import Provider from "../model/Provider.model.js";
 import User from "../model/User.model.js";

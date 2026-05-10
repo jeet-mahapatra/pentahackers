@@ -1,6 +1,3 @@
-
-
-
 import { Appointment } from "../model/Appiontment.model.js";
 
 // ================= GET URGENT (ONLY NEW) =================

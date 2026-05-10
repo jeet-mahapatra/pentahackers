@@ -1,5 +1,3 @@
-
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -84,7 +82,6 @@ export const UserFindServices = () => {
 
   return (
     <div className="p-6 bg-[#070A1A] min-h-screen text-white">
-
       <h1 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 text-transparent bg-clip-text">
         Find Services
       </h1>
@@ -104,12 +101,9 @@ export const UserFindServices = () => {
       {loading ? (
         <h2 className="text-center mt-10 text-gray-400">Loading...</h2>
       ) : providers.length === 0 ? (
-        <h2 className="text-center text-gray-400 mt-10">
-          No providers found
-        </h2>
+        <h2 className="text-center text-gray-400 mt-10">No providers found</h2>
       ) : (
-        <div className="grid md:grid-cols-3 gap-6">
-
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {providers.map((p) => {
             const avg = p.avgRating ?? 0;
             const min = p.minRating ?? 0;
@@ -121,25 +115,27 @@ export const UserFindServices = () => {
                 key={p._id}
                 className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl shadow-lg p-5 transition transform hover:-translate-y-2 hover:shadow-purple-500/20 duration-300"
               >
-
                 <h2 className="text-xl font-semibold capitalize text-white">
                   {p.username}
                 </h2>
 
-                <p className="text-gray-400">{p.email}</p>
+                <p className="text-gray-400 text-wrap">{p.email}</p>
 
                 <p className="mt-2 text-gray-300">
-                  <span className="font-semibold">Service:</span>{" "}
-                  {p.serviceType}
+                  <span className="font-semibold">Service:</span> {p.serviceType}
                 </p>
 
+                {/* FIXED: Rendering address properties instead of the whole object */}
                 <p className="mt-2 text-sm text-gray-400">
-                  {p.address}
+                  {p.address ? (
+                    `${p.address.street}, ${p.address.city} - ${p.address.pincode}`
+                  ) : (
+                    "No address provided"
+                  )}
                 </p>
 
                 {/* RATINGS */}
                 <div className="mt-3 border-t border-white/10 pt-3">
-
                   {total > 0 ? (
                     <>
                       <div className="flex justify-between items-center">
@@ -160,19 +156,14 @@ export const UserFindServices = () => {
                       </p>
                     </>
                   ) : (
-                    <p className="text-gray-400 text-sm">
-                      No reviews yet
-                    </p>
+                    <p className="text-gray-400 text-sm">No reviews yet</p>
                   )}
-
                 </div>
 
                 {/* SLOTS */}
                 <div className="mt-3">
                   <p className="font-semibold text-gray-300">Available Slots:</p>
-
                   <div className="flex flex-wrap gap-2 mt-2">
-
                     {p.timeSlots?.slice(0, 4).map((slot, i) => (
                       <span
                         key={i}
@@ -181,13 +172,11 @@ export const UserFindServices = () => {
                         {slot}
                       </span>
                     ))}
-
                     {p.timeSlots?.length > 4 && (
                       <span className="text-gray-400 text-sm">
                         +{p.timeSlots.length - 4} more
                       </span>
                     )}
-
                   </div>
                 </div>
 
@@ -197,20 +186,16 @@ export const UserFindServices = () => {
                 >
                   Book Appointment
                 </button>
-
               </div>
             );
           })}
-
         </div>
       )}
 
       {/* MODAL */}
       {selectedProvider && (
         <div className="fixed inset-0 bg-black/70 flex justify-center items-center">
-
           <div className="bg-[#0B0F2A] border border-white/10 p-6 rounded-2xl w-[400px]">
-
             <h2 className="text-xl font-bold mb-4 text-white">
               Book with {selectedProvider.username}
             </h2>
@@ -251,28 +236,22 @@ export const UserFindServices = () => {
             </label>
 
             <div className="flex justify-between">
-
               <button
                 onClick={handleBooking}
                 className="bg-green-500 text-white px-4 py-2 rounded-lg"
               >
                 Confirm
               </button>
-
               <button
                 onClick={() => setSelectedProvider(null)}
                 className="bg-red-500 text-white px-4 py-2 rounded-lg"
               >
                 Cancel
               </button>
-
             </div>
-
           </div>
-
         </div>
       )}
-
     </div>
   );
 };

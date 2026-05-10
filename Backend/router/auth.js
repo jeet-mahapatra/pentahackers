@@ -1,6 +1,6 @@
 import express from "express";
-import User from "../model/User.model.js"
-import Provider from "../model/Provider.model.js"
+import User from "../model/User.model.js";
+import Provider from "../model/Provider.model.js";
 import { check, validationResult } from "express-validator";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -8,79 +8,17 @@ import { sendNotificationEmail } from "../utils/emailService.js";
 import { getOTPTemplate } from "../utils/emailTemplates.js";
 import validator from "validator";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
-import fs from "fs"
 import { upload } from "../Middleware/Multer.js";
-
 
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET_KEY;
-console.log( process.env.JWT_SECRET_KEY)
+// ─── Professional service types that require certification ───────────────────
+const PROFESSIONAL_SERVICES = new Set([
+  "Doctor", "Tutor", "Fitness Trainer", "Photographer",
+  "Event Planner", "Computer Technician", "Lawyer", "Architect", "Nurse",
+]);
 
-
-
-// REGISTER USER
-
-// router.post(
-//   "/register/user",
-//   [
-//     check("name", "Name required").notEmpty(),
-//     check("email", "Valid email required").isEmail(),
-//     check("password", "Min 6 characters").isLength({ min: 6 }),
-//   ],
-//   async (req, res) => {
-//     const errors = validationResult(req);
-//     if (!errors.isEmpty()) {
-//       return res.status(400).json({ success: false, errors: errors.array() });
-//     }
-
-//     try {
-//       const { name, email, password } = req.body;
-
-//       const username = name.trim().toLowerCase();
-//       const normalizedEmail = email.toLowerCase();
-
-//       const existingUser = await User.findOne({
-//         $or: [{ username }, { email: normalizedEmail }],
-//       });
-
-//       if (existingUser) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "User already exists",
-//         });
-//       }
-
-//       const hashedPassword = await bcrypt.hash(password, 10);
-
-//       const user = await User.create({
-//         username,
-//         email: normalizedEmail,
-//         password: hashedPassword,
-//       });
-
-//       const token = jwt.sign(
-//         { id: user._id, role: "user" },
-//         JWT_SECRET,
-//         { expiresIn: "1h" }
-//       );
-
-//       return res.status(201).json({
-//         success: true,
-//         message: "User registered successfully",
-//         token,
-//         userId: user._id,
-//       });
-
-//     } catch (error) {
-//       console.error("USER REGISTER ERROR:", error.message);
-//       return res.status(500).json({ success: false, message: "Server error" });
-//     }
-//   }
-// );
-
-
-
+// ─── REGISTER USER ────────────────────────────────────────────────────────────
 router.post(
   "/register/user",
   [
@@ -90,41 +28,20 @@ router.post(
   ],
   async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() });
-    }
+    if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
 
     try {
       const { name, email, password } = req.body;
-
       const username = name.trim().toLowerCase();
       const normalizedEmail = email.toLowerCase();
 
-      const existingUser = await User.findOne({
-        $or: [{ username }, { email: normalizedEmail }],
-      });
-
-      if (existingUser) {
-        return res.status(400).json({
-          success: false,
-          message: "User already exists",
-        });
-      }
+      const existingUser = await User.findOne({ $or: [{ username }, { email: normalizedEmail }] });
+      if (existingUser) return res.status(400).json({ success: false, message: "User already exists" });
 
       const hashedPassword = await bcrypt.hash(password, 10);
+      const user = await User.create({ username, email: normalizedEmail, password: hashedPassword });
 
-      const user = await User.create({
-        username,
-        email: normalizedEmail,
-        password: hashedPassword,
-      });
-
-      return res.status(201).json({
-        success: true,
-        message: "User registered successfully",
-        userId: user._id,
-      });
-
+      return res.status(201).json({ success: true, message: "User registered successfully", userId: user._id });
     } catch (error) {
       console.error("USER REGISTER ERROR:", error.message);
       return res.status(500).json({ success: false, message: "Server error" });
@@ -132,170 +49,74 @@ router.post(
   }
 );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// router.post(
-//   "/register/provider",
-//   upload.fields([
-//     { name: "idProof", maxCount: 1 },
-//     { name: "photoproof", maxCount: 1 },
-//   ]),
-//   [
-//     check("name", "Name required").notEmpty(),
-//     check("email", "Valid email required").isEmail(),
-//     check("password", "Min 6 characters").isLength({ min: 6 }),
-//   ],
-//   async (req, res) => {
-//     const errors = validationResult(req);
-//     if (!errors.isEmpty()) {
-//       return res.status(400).json({ success: false, errors: errors.array() });
-//     }
-
-//     try {
-//       const { name, email, password, serviceType, address } = req.body;
-
-//       const username = name.trim().toLowerCase();
-//       const normalizedEmail = email.toLowerCase();
-
-//       const existingProvider = await Provider.findOne({
-//         $or: [{ username }, { email: normalizedEmail }],
-//       });
-
-//       if (existingProvider) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "Provider already exists",
-//         });
-//       }
-
-//       // FILES
-//       const idProofPath = req.files?.idProof?.[0]?.path;
-//       const photoProofPath = req.files?.photoproof?.[0]?.path;
-
-//       if (!idProofPath || !photoProofPath) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "Documents are required",
-//         });
-//       }
-
-//       // UPLOAD CLOUDINARY
-//       const idProofUpload = await uploadOnCloudinary(idProofPath);
-//       const photoProofUpload = await uploadOnCloudinary(photoProofPath);
-
-//       if (!idProofUpload || !photoProofUpload) {
-//         return res.status(500).json({
-//           success: false,
-//           message: "File upload failed",
-//         });
-//       }
-
-//       const hashedPassword = await bcrypt.hash(password, 10);
-
-//       const provider = await Provider.create({
-//         username,
-//         email: normalizedEmail,
-//         password: hashedPassword,
-//         role: "pending_provider",
-//         serviceType,
-//         address,
-
-//         documents: {
-//           idProof: idProofUpload.secure_url,
-//           photoproof: photoProofUpload.secure_url,
-//         },
-
-//         verificationStatus: "pending",
-//       });
-
-//       const token = jwt.sign(
-//         { id: provider._id, role: "provider" },
-//         JWT_SECRET,
-//         { expiresIn: "1h" }
-//       );
-
-//       return res.status(201).json({
-//         success: true,
-//         message: "Provider registered successfully",
-//         token,
-//         providerId: provider._id,
-//       });
-
-//     } catch (error) {
-//       console.error("PROVIDER REGISTER ERROR:", error.message);
-//       return res.status(500).json({ success: false, message: "Server error" });
-//     }
-//   }
-// );
-
-
-
+// ─── REGISTER PROVIDER ────────────────────────────────────────────────────────
+// Accepts 3 files via multipart:
+//   - idProof     : required for all
+//   - photoproof  : required for all
+//   - certification : required only for professional service types
 router.post(
   "/register/provider",
   upload.fields([
-    { name: "idProof", maxCount: 1 },
-    { name: "photoproof", maxCount: 1 },
+    { name: "idProof",       maxCount: 1 },
+    { name: "photoproof",    maxCount: 1 },
+    { name: "certification", maxCount: 1 },
   ]),
   [
-    check("name", "Name required").notEmpty(),
-    check("email", "Valid email required").isEmail(),
-    check("password", "Min 6 characters").isLength({ min: 6 }),
+    check("name",        "Name required").notEmpty(),
+    check("email",       "Valid email required").isEmail(),
+    check("password",    "Min 6 characters").isLength({ min: 6 }),
+    check("phone",       "Valid phone required").isMobilePhone(),
+    check("serviceType", "Service type required").notEmpty(),
+    check("experience",  "Experience level required").notEmpty(),
+    check("address",     "Street address required").notEmpty(),
+    check("city",        "City required").notEmpty(),
+    check("pincode",     "Valid 6-digit pincode required").isLength({ min: 6, max: 6 }).isNumeric(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() });
-    }
+    if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
 
     try {
-      const { name, email, password, serviceType, address } = req.body;
+      const { name, email, password, phone, serviceType, experience, address, city, pincode, bio } = req.body;
 
       const username = name.trim().toLowerCase();
       const normalizedEmail = email.toLowerCase();
+      const isProfessional = PROFESSIONAL_SERVICES.has(serviceType);
 
-      const existingProvider = await Provider.findOne({
-        $or: [{ username }, { email: normalizedEmail }],
-      });
+      // Check duplicate
+      const existing = await Provider.findOne({ $or: [{ username }, { email: normalizedEmail }] });
+      if (existing) return res.status(400).json({ success: false, message: "Provider already exists" });
 
-      if (existingProvider) {
-        return res.status(400).json({
-          success: false,
-          message: "Provider already exists",
-        });
-      }
-
-      const idProofPath = req.files?.idProof?.[0]?.path;
-      const photoProofPath = req.files?.photoproof?.[0]?.path;
+      // Validate files
+      const idProofPath       = req.files?.idProof?.[0]?.path;
+      const photoProofPath    = req.files?.photoproof?.[0]?.path;
+      const certificationPath = req.files?.certification?.[0]?.path;
 
       if (!idProofPath || !photoProofPath) {
+        return res.status(400).json({ success: false, message: "Government ID and photograph are required" });
+      }
+
+      if (isProfessional && !certificationPath) {
         return res.status(400).json({
           success: false,
-          message: "Documents are required",
+          message: `Professional certification is required for ${serviceType} providers`,
         });
       }
 
-      const idProofUpload = await uploadOnCloudinary(idProofPath);
+      // Upload to Cloudinary
+      const idProofUpload    = await uploadOnCloudinary(idProofPath);
       const photoProofUpload = await uploadOnCloudinary(photoProofPath);
 
       if (!idProofUpload || !photoProofUpload) {
-        return res.status(500).json({
-          success: false,
-          message: "File upload failed",
-        });
+        return res.status(500).json({ success: false, message: "File upload failed" });
+      }
+
+      let certificationUpload = null;
+      if (isProfessional && certificationPath) {
+        certificationUpload = await uploadOnCloudinary(certificationPath);
+        if (!certificationUpload) {
+          return res.status(500).json({ success: false, message: "Certification upload failed" });
+        }
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -304,20 +125,26 @@ router.post(
         username,
         email: normalizedEmail,
         password: hashedPassword,
+        phone,
         role: "pending_provider",
         serviceType,
-        address,
+        isProfessional,
+        experience,
+        bio: bio || null,
+        address: { street: address, city, pincode },
         documents: {
-          idProof: idProofUpload.secure_url,
-          photoproof: photoProofUpload.secure_url,
+          idProof:       idProofUpload.secure_url,
+          photoproof:    photoProofUpload.secure_url,
+          certification: certificationUpload ? certificationUpload.secure_url : null,
         },
         verificationStatus: "pending",
       });
 
       return res.status(201).json({
         success: true,
-        message: "Provider registered successfully",
+        message: "Provider registered successfully. Your account is pending verification.",
         providerId: provider._id,
+        isProfessional,
       });
 
     } catch (error) {
@@ -327,128 +154,7 @@ router.post(
   }
 );
 
-
-
-
-
-// router.post(
-//   "/login",
-//   [
-//     check("loginIdentifier", "Username or email required").notEmpty(),
-//     check("password", "Password required").notEmpty(),
-//   ],
-//   async (req, res) => {
-//     const errors = validationResult(req);
-
-//     if (!errors.isEmpty()) {
-//       return res.status(400).json({
-//         success: false,
-//         errors: errors.array(),
-//       });
-//     }
-
-//     try {
-//       const { loginIdentifier, password } = req.body;
-
-//       // ================= NORMALIZE INPUT =================
-//       const sanitized = validator.isEmail(loginIdentifier)
-//         ? validator.normalizeEmail(loginIdentifier).toLowerCase()
-//         : loginIdentifier.toLowerCase();
-
-//       // ================= FIND USER =================
-//       let user = await User.findOne({
-//         $or: [
-//           { username: sanitized },
-//           { email: sanitized }
-//         ],
-//       });
-
-//       let type = "user";
-
-//       if (!user) {
-//         user = await Provider.findOne({
-//           $or: [
-//             { username: sanitized },
-//             { email: sanitized }
-//           ],
-//         });
-
-//         type = "provider";
-//       }
-
-//       if (!user) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "Invalid credentials",
-//         });
-//       }
-
-//       // ================= PASSWORD CHECK =================
-//       if (!user.password) {
-//         return res.status(500).json({
-//           success: false,
-//           message: "Password not found in database",
-//         });
-//       }
-
-//       const isMatch = await bcrypt.compare(password, user.password);
-
-//       if (!isMatch) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "Invalid credentials",
-//         });
-//       }
-
-//       // ================= JWT TOKEN =================
-//       const token = jwt.sign(
-//         {
-//           user: {
-//             id: user._id,
-//             role: user.role,
-//             type: type,
-//           },
-//         },
-//         process.env.JWT_SECRET_KEY,
-//         { expiresIn: "24h" }
-//       );
-
-//       // ================= COOKIE SETUP =================
-//       res.cookie("token", token, {
-//         httpOnly: true,
-//         secure: false,        // set true in production (HTTPS)
-//         sameSite: "lax",
-//         maxAge: 24 * 60 * 60 * 1000, // 1 day
-//       });
-
-//       return res.status(200).json({
-//         success: true,
-//         message: "Login successful",
-//         user: {
-//           id: user._id,
-//           username: user.username,
-//           role: user.role,
-//           type: type,
-//         },
-//       });
-
-//     } catch (error) {
-//       console.error("LOGIN ERROR:", error);
-
-//       return res.status(500).json({
-//         success: false,
-//         message: "Internal Server Error",
-//       });
-//     }
-//   }
-// );
-
-
-
-
-
-
-
+// ─── LOGIN ────────────────────────────────────────────────────────────────────
 router.post(
   "/login",
   [
@@ -457,81 +163,37 @@ router.post(
   ],
   async (req, res) => {
     const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        errors: errors.array(),
-      });
-    }
+    if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
 
     try {
       const { loginIdentifier, password } = req.body;
 
-      // ================= NORMALIZE INPUT =================
       const sanitized = validator.isEmail(loginIdentifier)
         ? validator.normalizeEmail(loginIdentifier).toLowerCase()
         : loginIdentifier.toLowerCase();
 
-      // ================= FIND USER =================
-      let user = await User.findOne({
-        $or: [
-          { username: sanitized },
-          { email: sanitized }
-        ],
-      });
+      let user = await User.findOne({ $or: [{ username: sanitized }, { email: sanitized }] });
+      if (!user) user = await Provider.findOne({ $or: [{ username: sanitized }, { email: sanitized }] });
 
-      if (!user) {
-        user = await Provider.findOne({
-          $or: [
-            { username: sanitized },
-            { email: sanitized }
-          ],
-        });
-      }
+      if (!user) return res.status(400).json({ success: false, message: "Invalid credentials" });
+      
+      // Prevent admins from logging in through the user portal
+      if (user.role === 'admin') return res.status(403).json({ success: false, message: "Please use the admin login portal." });
 
-      if (!user) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid credentials",
-        });
-      }
-
-      // ================= PASSWORD CHECK =================
-      if (!user.password) {
-        return res.status(500).json({
-          success: false,
-          message: "Password not found in database",
-        });
-      }
+      if (!user.password) return res.status(500).json({ success: false, message: "Password not found" });
 
       const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) return res.status(400).json({ success: false, message: "Invalid credentials" });
 
-      if (!isMatch) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid credentials",
-        });
-      }
-
-      // ================= DETERMINE ROLE =================
-      const role = user.role; 
-      // MUST be "user" or "provider"
-
-      // ================= JWT TOKEN =================
       const token = jwt.sign(
-        {
-          id: user._id,
-          role: role,
-        },
+        { id: user._id, role: user.role },
         process.env.JWT_SECRET_KEY,
         { expiresIn: "24h" }
       );
 
-      // ================= COOKIE SETUP =================
       res.cookie("token", token, {
         httpOnly: true,
-        secure: false, // true in production (HTTPS)
+        secure: false,
         sameSite: "lax",
         maxAge: 24 * 60 * 60 * 1000,
       });
@@ -539,182 +201,145 @@ router.post(
       return res.status(200).json({
         success: true,
         message: "Login successful",
-        user: {
-          id: user._id,
-          username: user.username,
-          role: role,
-        },
+        user: { id: user._id, username: user.username, role: user.role },
       });
 
     } catch (error) {
       console.error("LOGIN ERROR:", error);
-
-      return res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-      });
+      return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
   }
 );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Routes 3: Login a user by POST "/api/auth/forgot-password"
+// ─── ADMIN LOGIN ──────────────────────────────────────────────────────────────
 router.post(
-    "/forgot-password",
-    [
-        // Validaton
-        check("email", "Please enter a valid email").isEmail().normalizeEmail({ gmail_remove_dots: false }),
-    ],
-    async (req, res) => {
-        const error = validationResult(req);
-
-        // If some error occurs, then return the error
-        if (!error.isEmpty()) {
-            return res.status(400).json({ error: error.array() });
-        }
-
-        const { email } = req.body;
-
-        let success = false;
-
-        try {
-            // Find user through exist email
-            console.log("email : ", email);
-            const existUser = await User.findOne({ email });
-            console.log("existUser : ", existUser);
-            // Check user exist or not
-            if (!existUser) {
-                return res
-                    .status(400)
-                    .json({ success, error: "User with this email does not exist." });
-            }
-
-            // Generate 6-digit OTP
-            const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-            // Save OTP and expiry (10 minutes) to DB
-            existUser.resetOTP = otp;
-            existUser.resetOTPExpires = Date.now() + 10 * 60 * 1000;
-            await existUser.save();
-
-            const htmlContent = getOTPTemplate(existUser.username, otp);
-            await sendNotificationEmail(existUser.email, "Your Password Reset OTP", htmlContent);
-
-            res.json({
-                success: true,
-                msg: "OTP sent successfully to your email",
-            });
-        } catch (error) {
-            console.error(error.message);
-            res.status(500).json({ success, error: "Internal Server Error" });
-        }
-    }
-);
-
-// Routes 4: Verify OTP by POST "/api/auth/verify-otp"
-router.post("/verify-otp", [
-    // Validation
-    check("email", "Email is required").isEmail(),
-    check("otp", "Enter 6 digit OTP").isLength({ min: 6, max: 6 }),
-], async (req, res) => {
-    const error = validationResult(req);
-
-    // If some error occurs, then return the error
-    if (!error.isEmpty()) {
-        return res.status(400).json({ error: error.array() });
-    }
-
-    const { email, otp } = req.body;
-
-    let success = false;
+  "/admin-login",
+  [
+    check("email", "Valid admin email required").isEmail(),
+    check("password", "Password required").notEmpty(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
 
     try {
-        // Find user through exist email
-        const user = await User.findOne({
-            email,
-            resetOTP: otp,
-            resetOTPExpires: { $gt: Date.now() }
-        });
+      const { email, password } = req.body;
+      const normalizedEmail = email.toLowerCase();
 
-        // Check user exist or not
-        if(!user) {
-            return res.status(400).json({ success, error: "Invalid or Expired OTP. Please try again." });
-        }
+      // Only find users strictly assigned the 'admin' role
+      const admin = await User.findOne({ email: normalizedEmail, role: 'admin' });
+      
+      if (!admin) return res.status(400).json({ success: false, message: "Invalid admin credentials" });
 
-        res.json({
-            success: true,
-            msg: "OTP verified successfully",
-        });
+      const isMatch = await bcrypt.compare(password, admin.password);
+      if (!isMatch) return res.status(400).json({ success: false, message: "Invalid admin credentials" });
+
+      const token = jwt.sign(
+        { id: admin._id, role: admin.role },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: "24h" }
+      );
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false, // set to true in production
+        sameSite: "lax",
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Admin login successful",
+        user: { id: admin._id, username: admin.username, role: admin.role },
+      });
+
     } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ success, error: "Internal Server Error" });
+      console.error("ADMIN LOGIN ERROR:", error);
+      return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
-})
-
-// Routes 5: Reset Password by POST "/api/auth/reset-password/:token"
-router.post(
-    "/reset-password",
-    [
-        // Validation
-        check("email", "Email is required").isEmail(),
-        check("newPassword", "Password min 6 chars").isLength({ min: 6 }),
-    ],
-    async (req, res) => {
-        const error = validationResult(req);
-
-        // If some error occurs, then return the error
-        if (!error.isEmpty()) {
-            return res.status(400).json({ error: error.array() });
-        }
-
-        const { email, newPassword } = req.body;
-
-        let success = false;
-
-        try {
-            // Find user through exist email
-            const user = await User.findOne({
-                email
-            });
-
-            // Check user exist or not
-            if (!user) {
-                return res.status(400).json({ success: false, error: "User not found" })
-            };
-
-            // To hash a password and store in DB
-            const salt = await bcrypt.genSalt(10);
-            user.password = await bcrypt.hash(newPassword, salt);
-
-            // Reset OTP and expiry to null
-            user.resetOTP = null;
-            user.resetOTPExpires = null;
-
-            // Save user to DB
-            await user.save();
-
-            res.json({ success: true, msg: "Password has been reset successfully." });
-        } catch (error) {
-            console.error(error.message);
-            res.status(500).json({ success, error: "Internal Server Error" });
-        }
-    }
+  }
 );
 
+// ─── FORGOT PASSWORD ──────────────────────────────────────────────────────────
+router.post(
+  "/forgot-password",
+  [check("email", "Please enter a valid email").isEmail().normalizeEmail({ gmail_remove_dots: false })],
+  async (req, res) => {
+    const error = validationResult(req);
+    if (!error.isEmpty()) return res.status(400).json({ error: error.array() });
 
+    const { email } = req.body;
+    try {
+      const existUser = await User.findOne({ email });
+      if (!existUser) return res.status(400).json({ success: false, error: "User with this email does not exist." });
 
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      existUser.resetOTP = otp;
+      existUser.resetOTPExpires = Date.now() + 10 * 60 * 1000;
+      await existUser.save();
+
+      const htmlContent = getOTPTemplate(existUser.username, otp);
+      await sendNotificationEmail(existUser.email, "Your Password Reset OTP", htmlContent);
+
+      res.json({ success: true, msg: "OTP sent successfully to your email" });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({ success: false, error: "Internal Server Error" });
+    }
+  }
+);
+
+// ─── VERIFY OTP ───────────────────────────────────────────────────────────────
+router.post(
+  "/verify-otp",
+  [
+    check("email", "Email is required").isEmail(),
+    check("otp", "Enter 6 digit OTP").isLength({ min: 6, max: 6 }),
+  ],
+  async (req, res) => {
+    const error = validationResult(req);
+    if (!error.isEmpty()) return res.status(400).json({ error: error.array() });
+
+    const { email, otp } = req.body;
+    try {
+      const user = await User.findOne({ email, resetOTP: otp, resetOTPExpires: { $gt: Date.now() } });
+      if (!user) return res.status(400).json({ success: false, error: "Invalid or Expired OTP." });
+      res.json({ success: true, msg: "OTP verified successfully" });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({ success: false, error: "Internal Server Error" });
+    }
+  }
+);
+
+// ─── RESET PASSWORD ───────────────────────────────────────────────────────────
+router.post(
+  "/reset-password",
+  [
+    check("email", "Email is required").isEmail(),
+    check("newPassword", "Password min 6 chars").isLength({ min: 6 }),
+  ],
+  async (req, res) => {
+    const error = validationResult(req);
+    if (!error.isEmpty()) return res.status(400).json({ error: error.array() });
+
+    const { email, newPassword } = req.body;
+    try {
+      const user = await User.findOne({ email });
+      if (!user) return res.status(400).json({ success: false, error: "User not found" });
+
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+      user.resetOTP = null;
+      user.resetOTPExpires = null;
+      await user.save();
+
+      res.json({ success: true, msg: "Password has been reset successfully." });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({ success: false, error: "Internal Server Error" });
+    }
+  }
+);
 
 export default router;
