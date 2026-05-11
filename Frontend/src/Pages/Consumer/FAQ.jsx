@@ -178,36 +178,45 @@ const FAQ = ({ searchQuery, activeTab, setActiveTab, userRole }) => {
     }, [searchQuery, validTab, faqData]);
 
     return (
-        <div className="py-20 px-6 max-w-5xl mx-auto">
+        <div className="py-12 max-w-4xl mx-auto" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
             <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-black italic mb-2 text-white/90">
-                    Frequently Asked Questions
+                <h2 
+                    className="text-3xl md:text-5xl font-black tracking-tight mb-4 text-white"
+                    style={{ fontFamily: "'Fraunces', serif" }}
+                >
+                    Frequently Asked <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2DD4BF] to-[#0EA5E9] italic">Questions</span>
                 </h2>
+                
                 {/* Role badge */}
-                <p className="text-gray-500 text-sm">
-                    {isProvider
-                        ? '🔧 Showing FAQs for Service Providers'
-                        : '👤 Showing FAQs for Users'}
-                </p>
+                <div className="inline-flex items-center gap-2 bg-white/[0.03] border border-white/[0.08] rounded-full px-4 py-1.5 backdrop-blur-sm">
+                    <span className={`w-2 h-2 rounded-full ${isProvider ? 'bg-[#F59E0B]' : 'bg-[#2DD4BF]'}`} />
+                    <span className="text-white/60 text-[12px] font-bold tracking-widest uppercase">
+                        {isProvider ? 'Service Providers' : 'Service Users'}
+                    </span>
+                </div>
 
                 {/* Tabs — hidden while searching */}
                 {!searchQuery && (
-                    <div className="flex flex-wrap justify-center gap-2 mt-8">
-                        {categories.map(cat => (
-                            <button
-                                key={cat.id}
-                                onClick={() => {
-                                    setActiveTab(cat.id);
-                                    setOpenFaq(null);
-                                }}
-                                className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all ${validTab === cat.id
-                                        ? 'bg-[#00C4CC] text-[#0F172A]'
-                                        : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                    <div className="flex flex-wrap justify-center gap-3 mt-10">
+                        {categories.map(cat => {
+                            const isActive = validTab === cat.id;
+                            return (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => {
+                                        setActiveTab(cat.id);
+                                        setOpenFaq(null);
+                                    }}
+                                    className={`flex items-center gap-2 px-5 py-2.5 rounded-[14px] font-bold text-[13px] tracking-wide transition-all duration-300 ${
+                                        isActive
+                                            ? 'bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/30 shadow-[0_4px_15px_rgba(45,212,191,0.15)]'
+                                            : 'bg-white/[0.02] border border-white/[0.05] text-white/40 hover:bg-white/[0.05] hover:text-white/80 hover:border-white/[0.1]'
                                     }`}
-                            >
-                                {cat.icon} {cat.label}
-                            </button>
-                        ))}
+                                >
+                                    {cat.icon} {cat.label}
+                                </button>
+                            );
+                        })}
                     </div>
                 )}
             </div>
@@ -215,53 +224,63 @@ const FAQ = ({ searchQuery, activeTab, setActiveTab, userRole }) => {
             <motion.div layout className="space-y-4">
                 <AnimatePresence mode="popLayout">
                     {filteredFaqs.length > 0 ? (
-                        filteredFaqs.map((faq, index) => (
-                            <motion.div
-                                layout
-                                key={faq.q}
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                className="mb-4"
-                            >
-                                <button
-                                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                                    className="w-full p-5 lg:p-6 rounded-3xl bg-white/[0.03] border border-white/5 flex items-center justify-between hover:bg-white/[0.05] transition-all text-left group"
+                        filteredFaqs.map((faq, index) => {
+                            const isOpen = openFaq === index;
+                            return (
+                                <motion.div
+                                    layout
+                                    key={faq.q}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.98 }}
+                                    className={`rounded-3xl border transition-all duration-300 overflow-hidden ${
+                                        isOpen 
+                                        ? 'bg-white/[0.04] border-[#2DD4BF]/30 shadow-[0_10px_30px_rgba(0,0,0,0.3)]' 
+                                        : 'bg-white/[0.02] border-white/[0.05] hover:bg-white/[0.03] hover:border-[#2DD4BF]/20'
+                                    }`}
                                 >
-                                    <span className="font-bold text-base pr-4 group-hover:text-white transition-colors">
-                                        {faq.q}
-                                    </span>
-                                    <motion.div animate={{ rotate: openFaq === index ? 180 : 0 }} className="shrink-0">
-                                        <ChevronDown className="text-[#00C4CC]" size={20} />
-                                    </motion.div>
-                                </button>
-
-                                <AnimatePresence>
-                                    {openFaq === index && (
-                                        <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: 'auto', opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.25 }}
-                                            className="overflow-hidden"
+                                    <button
+                                        onClick={() => setOpenFaq(isOpen ? null : index)}
+                                        className="w-full px-6 py-5 flex items-center justify-between text-left group"
+                                    >
+                                        <span className={`font-bold text-[16px] pr-6 transition-colors duration-300 ${isOpen ? 'text-[#2DD4BF]' : 'text-white/90 group-hover:text-white'}`}>
+                                            {faq.q}
+                                        </span>
+                                        <motion.div 
+                                            animate={{ rotate: isOpen ? 180 : 0 }} 
+                                            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                                            className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isOpen ? 'bg-[#2DD4BF]/20' : 'bg-white/5 group-hover:bg-[#2DD4BF]/10'}`}
                                         >
-                                            <div className="p-6 lg:p-8 text-gray-400 leading-relaxed border-x border-b border-white/5 rounded-b-3xl -mt-4 bg-white/[0.01] text-sm">
-                                                {faq.a}
-                                            </div>
+                                            <ChevronDown className={isOpen ? 'text-[#2DD4BF]' : 'text-white/40 group-hover:text-[#2DD4BF]'} size={18} />
                                         </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </motion.div>
-                        ))
+                                    </button>
+
+                                    <AnimatePresence>
+                                        {isOpen && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                                            >
+                                                <div className="px-6 pb-6 pt-2 text-white/50 leading-[1.75] text-[15px] font-medium border-t border-white/[0.05]">
+                                                    {faq.a}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </motion.div>
+                            );
+                        })
                     ) : (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="text-center py-20"
+                            className="text-center py-24 rounded-3xl border border-white/[0.05] bg-white/[0.01]"
                         >
-                            <ShieldQuestion size={56} className="mx-auto text-gray-700 mb-4" />
-                            <p className="text-gray-500 text-xl italic">
-                                No results found for "{searchQuery}"
+                            <ShieldQuestion size={56} className="mx-auto text-white/20 mb-5" />
+                            <p className="text-white/40 text-lg font-medium">
+                                No results found for "<span className="text-white/80">{searchQuery}</span>"
                             </p>
                         </motion.div>
                     )}

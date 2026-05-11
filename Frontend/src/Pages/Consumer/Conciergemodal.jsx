@@ -19,45 +19,44 @@ const CATEGORIES = [
 ];
 
 const PRIORITIES = [
-    { value: 'low', label: 'Low', color: 'text-gray-400' },
-    { value: 'medium', label: 'Medium', color: 'text-blue-400' },
-    { value: 'high', label: 'High', color: 'text-yellow-400' },
-    { value: 'urgent', label: 'Urgent', color: 'text-red-400' },
+    { value: 'low', label: 'Low', color: '#2DD4BF' },
+    { value: 'medium', label: 'Medium', color: '#0EA5E9' },
+    { value: 'high', label: 'High', color: '#F59E0B' },
+    { value: 'urgent', label: 'Urgent', color: '#FB923C' },
 ];
 
 // Backdrop overlay variants
 const overlayVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.25 } },
-    exit: { opacity: 0, transition: { duration: 0.2 } },
+    visible: { opacity: 1, transition: { duration: 0.4 } },
+    exit: { opacity: 0, transition: { duration: 0.3 } },
 };
 
 // Modal panel variants
 const panelVariants = {
-    hidden: { opacity: 0, scale: 0.92, y: 40 },
-    visible: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', damping: 22, stiffness: 280 } },
-    exit: { opacity: 0, scale: 0.94, y: 20, transition: { duration: 0.18 } },
+    hidden: { opacity: 0, scale: 0.95, y: 40 },
+    visible: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 300 } },
+    exit: { opacity: 0, scale: 0.96, y: 20, transition: { duration: 0.25 } },
 };
 
 const InputField = ({ label, error, children }) => (
-    <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-bold uppercase tracking-widest text-gray-400">{label}</label>
+    <div className="flex flex-col gap-2 relative z-10">
+        <label className="text-[11px] font-bold uppercase tracking-widest text-white/40 pl-1">{label}</label>
         {children}
         {error && (
-            <p className="text-red-400 text-xs flex items-center gap-1">
-                <AlertCircle size={12} /> {error}
-            </p>
+            <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs flex items-center gap-1.5 pl-1 font-medium mt-1">
+                <AlertCircle size={14} /> {error}
+            </motion.p>
         )}
     </div>
 );
 
 const inputCls =
-    'w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-600 outline-none focus:border-[#00C4CC]/60 transition-all text-sm';
+    'w-full bg-white/[0.02] border border-white/[0.08] rounded-2xl px-5 py-3.5 text-white placeholder-white/30 outline-none focus:border-[#2DD4BF]/50 focus:bg-white/[0.05] transition-all duration-300 text-[14px] font-medium shadow-[0_4px_20px_rgba(0,0,0,0.1)]';
 
 const ConciergeModal = ({ isOpen, onClose }) => {
     const { user } = useContext(UserContext);
 
-    console.log("Concierge Modal - User Context:", user); // Debugging line
     const [form, setForm] = useState({
         senderName: user?.username || '',
         senderEmail: user?.email || '',
@@ -111,7 +110,6 @@ const ConciergeModal = ({ isOpen, onClose }) => {
 
     const handleClose = () => {
         onClose();
-        // small delay so exit animation plays before reset
         setTimeout(() => {
             setSuccess(false);
             setApiErr('');
@@ -129,10 +127,11 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#080C1C]/80 backdrop-blur-xl"
                     onClick={handleClose}
+                    style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}
                 >
-                    {/* Panel — stop propagation so clicks inside don't close */}
+                    {/* Panel */}
                     <motion.div
                         key="concierge-panel"
                         variants={panelVariants}
@@ -140,29 +139,60 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                         animate="visible"
                         exit="exit"
                         onClick={e => e.stopPropagation()}
-                        className="custom-scrollbar relative w-full max-w-xl max-h-[90vh] overflow-y-auto bg-[#0F172A] border border-white/10 rounded-[2.5rem] shadow-2xl shadow-[#00C4CC]/10"
+                        className="custom-scrollbar relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#080C1C]/90 backdrop-blur-3xl border border-[#2DD4BF]/20 rounded-[32px] shadow-[0_40px_100px_rgba(0,0,0,0.6)]"
                     >
+                        {/* ── Landing Page Animated Aurora Mesh (Modal Sized) ── */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-[32px] z-0">
+                            {/* Teal Blob */}
+                            <motion.div
+                                animate={{ x: [0, 40, -20, 0], y: [0, -30, 40, 0] }}
+                                transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                                className="absolute w-[300px] h-[300px] rounded-full top-[-10%] left-[-10%] blur-[50px]"
+                                style={{ background: "radial-gradient(circle, rgba(45,212,191,0.15) 0%, transparent 70%)" }}
+                            />
+                            {/* Amber Blob */}
+                            <motion.div
+                                animate={{ x: [0, -50, 30, 0], y: [0, 40, -40, 0] }}
+                                transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                                className="absolute w-[400px] h-[400px] rounded-full bottom-[-10%] right-[-10%] blur-[60px]"
+                                style={{ background: "radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%)" }}
+                            />
+                            {/* Grid Overlay */}
+                            <div className="absolute inset-0" style={{
+                                backgroundImage: `linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)`,
+                                backgroundSize: "40px 40px"
+                            }} />
+                        </div>
+
                         {/* ── Header ── */}
-                        <div className="sticky top-0 z-10 flex items-center justify-between px-8 pt-8 pb-4 bg-[#0F172A] border-b border-white/5">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-2xl bg-[#00C4CC]/10 flex items-center justify-center">
-                                    <Headphones className="text-[#00C4CC]" size={20} />
-                                </div>
+                        <div className="sticky top-0 z-30 flex items-center justify-between px-8 pt-8 pb-5 bg-[#080C1C]/80 backdrop-blur-xl border-b border-white/[0.05]">
+                            {/* Shimmer Line from Landing */}
+                            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#2DD4BF]/60 to-transparent animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
+
+                            <div className="flex items-center gap-4 relative z-10">
+                                <motion.div 
+                                    whileHover={{ rotate: 15, scale: 1.05 }}
+                                    className="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#2DD4BF]/20 to-[#0EA5E9]/20 border border-[#2DD4BF]/30 flex items-center justify-center shadow-[0_0_20px_rgba(45,212,191,0.2)]"
+                                >
+                                    <Headphones className="text-[#2DD4BF]" size={22} />
+                                </motion.div>
                                 <div>
-                                    <h2 className="text-lg font-black text-white">Contact Concierge</h2>
-                                    <p className="text-gray-500 text-xs">We respond within 24 hours</p>
+                                    <h2 className="text-xl font-black text-white tracking-tight" style={{ fontFamily: "'Fraunces', serif" }}>
+                                        Contact <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-[#2DD4BF] to-[#F59E0B]">Concierge</span>
+                                    </h2>
+                                    <p className="text-white/40 text-[12px] font-medium mt-0.5">We respond within 24 hours</p>
                                 </div>
                             </div>
                             <button
                                 onClick={handleClose}
-                                className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors text-gray-400 hover:text-white"
+                                className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors text-white/40 hover:text-white hover:rotate-90 duration-300 relative z-10"
                             >
-                                <X size={18} />
+                                <X size={20} />
                             </button>
                         </div>
 
                         {/* ── Body ── */}
-                        <div className="px-8 py-6">
+                        <div className="px-8 py-8 relative z-20">
                             <AnimatePresence mode="wait">
                                 {success ? (
                                     /* ── SUCCESS STATE ── */
@@ -171,87 +201,72 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0 }}
-                                        className="flex flex-col items-center text-center py-10 gap-4"
+                                        className="flex flex-col items-center text-center py-16 gap-6 relative"
                                     >
-                                        <div className="w-20 h-20 rounded-full bg-[#00C4CC]/10 flex items-center justify-center">
-                                            <CheckCircle2 size={40} className="text-[#00C4CC]" />
+                                        {/* Spinning Orbital Rings from Landing CTA */}
+                                        <motion.div
+                                            animate={{ rotate: [0, 360] }}
+                                            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                            className="absolute top-10 w-[160px] h-[160px] border border-[#2DD4BF]/20 rounded-full pointer-events-none"
+                                        />
+                                        <motion.div
+                                            animate={{ rotate: [360, 0] }}
+                                            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                                            className="absolute top-6 w-[192px] h-[192px] border border-[#0EA5E9]/15 rounded-full pointer-events-none"
+                                        />
+
+                                        <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-[#2DD4BF]/20 to-[#0EA5E9]/20 flex items-center justify-center border border-[#2DD4BF]/30 shadow-[0_0_40px_rgba(45,212,191,0.3)] z-10">
+                                            <CheckCircle2 size={48} className="text-[#2DD4BF]" />
                                         </div>
-                                        <h3 className="text-2xl font-black text-white">Request Submitted!</h3>
-                                        <p className="text-gray-500 text-sm max-w-xs">
-                                            Our concierge team has received your message and will reach out within 24 hours.
-                                        </p>
-                                        <button
+                                        
+                                        <div className="relative z-10">
+                                            <h3 className="text-3xl font-black text-white tracking-tight mb-3" style={{ fontFamily: "'Fraunces', serif" }}>
+                                                Request Submitted!
+                                            </h3>
+                                            <p className="text-white/50 text-[15px] max-w-md mx-auto font-medium leading-relaxed">
+                                                Our concierge team has received your message and will reach out to you within 24 hours.
+                                            </p>
+                                        </div>
+
+                                        <motion.button
+                                            whileHover={{ scale: 1.05, y: -2 }}
+                                            whileTap={{ scale: 0.95 }}
                                             onClick={handleClose}
-                                            className="mt-4 bg-[#00C4CC] text-[#0F172A] px-10 py-3 rounded-2xl font-black text-sm shadow-[0_8px_24px_rgba(0,196,204,0.3)] hover:brightness-110 transition-all"
+                                            className="mt-6 relative z-10 bg-gradient-to-br from-[#2DD4BF] to-[#0EA5E9] text-[#080C1C] px-14 py-3.5 rounded-xl font-bold tracking-wide shadow-[0_16px_48px_rgba(45,212,191,0.4)] transition-all duration-300"
                                         >
                                             Done
-                                        </button>
+                                        </motion.button>
                                     </motion.div>
                                 ) : (
                                     /* ── FORM STATE ── */
-                                    <motion.div key="form" className="flex flex-col gap-5">
+                                    <motion.div key="form" className="flex flex-col gap-6">
 
-                                        {/* Row: Name + Email */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                             <InputField label="Your Name" error={errors.senderName}>
-                                                <input
-                                                    type="text"
-                                                    value={form.senderName}
-                                                    onChange={e => handleChange('senderName', e.target.value)}
-                                                    placeholder="John Doe"
-                                                    className={inputCls}
-                                                />
+                                                <input type="text" value={form.senderName} onChange={e => handleChange('senderName', e.target.value)} placeholder="John Doe" className={inputCls} />
                                             </InputField>
                                             <InputField label="Email" error={errors.senderEmail}>
-                                                <input
-                                                    type="email"
-                                                    value={form.senderEmail}
-                                                    onChange={e => handleChange('senderEmail', e.target.value)}
-                                                    placeholder="you@email.com"
-                                                    className={inputCls}
-                                                />
+                                                <input type="email" value={form.senderEmail} onChange={e => handleChange('senderEmail', e.target.value)} placeholder="you@email.com" className={inputCls} />
                                             </InputField>
                                         </div>
 
-                                        {/* Phone (optional) */}
                                         <InputField label="Phone (optional)">
-                                            <input
-                                                type="tel"
-                                                value={form.senderPhone}
-                                                onChange={e => handleChange('senderPhone', e.target.value)}
-                                                placeholder="+91 98765 43210"
-                                                className={inputCls}
-                                            />
+                                            <input type="tel" value={form.senderPhone} onChange={e => handleChange('senderPhone', e.target.value)} placeholder="+1 (555) 000-0000" className={inputCls} />
                                         </InputField>
 
-                                        {/* Subject */}
                                         <InputField label="Subject" error={errors.subject}>
-                                            <input
-                                                type="text"
-                                                value={form.subject}
-                                                onChange={e => handleChange('subject', e.target.value)}
-                                                placeholder="Brief summary of your issue"
-                                                maxLength={120}
-                                                className={inputCls}
-                                            />
+                                            <input type="text" value={form.subject} onChange={e => handleChange('subject', e.target.value)} placeholder="Brief summary of your issue" maxLength={120} className={inputCls} />
                                         </InputField>
 
-                                        {/* Category + Priority */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                             <InputField label="Category">
                                                 <div className="relative">
-                                                    <select
-                                                        value={form.category}
-                                                        onChange={e => handleChange('category', e.target.value)}
-                                                        className={`${inputCls} appearance-none cursor-pointer pr-10`}
-                                                    >
+                                                    <select value={form.category} onChange={e => handleChange('category', e.target.value)} className={`${inputCls} appearance-none cursor-pointer pr-10`}>
                                                         {CATEGORIES.map(c => (
-                                                            <option key={c.value} value={c.value} className="bg-[#1E293B]">
-                                                                {c.label}
-                                                            </option>
+                                                            <option key={c.value} value={c.value} className="bg-[#080C1C] text-white">{c.label}</option>
                                                         ))}
                                                     </select>
-                                                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                                                    <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
                                                 </div>
                                             </InputField>
 
@@ -262,10 +277,12 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                                                             key={p.value}
                                                             type="button"
                                                             onClick={() => handleChange('priority', p.value)}
-                                                            className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-all ${form.priority === p.value
-                                                                ? 'bg-[#00C4CC]/15 border-[#00C4CC]/60 text-[#00C4CC]'
-                                                                : 'bg-white/[0.03] border-white/10 text-gray-400 hover:bg-white/[0.06]'
-                                                                }`}
+                                                            className={`flex-1 py-3 rounded-[14px] text-[13px] font-bold border transition-all duration-300 ${
+                                                                form.priority === p.value
+                                                                    ? `bg-[${p.color}]/10 border-[${p.color}]/40 text-[${p.color}] shadow-[0_4px_15px_rgba(45,212,191,0.15)]`
+                                                                    : 'bg-white/[0.02] border-white/[0.05] text-white/40 hover:bg-white/[0.06] hover:text-white/80'
+                                                            }`}
+                                                            style={form.priority === p.value ? { color: p.color, borderColor: `${p.color}66`, backgroundColor: `${p.color}1A` } : {}}
                                                         >
                                                             {p.label}
                                                         </button>
@@ -274,38 +291,29 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                                             </InputField>
                                         </div>
 
-                                        {/* Message */}
                                         <InputField label={`Message (${form.message.length}/1500)`} error={errors.message}>
-                                            <textarea
-                                                rows={5}
-                                                value={form.message}
-                                                onChange={e => handleChange('message', e.target.value)}
-                                                placeholder="Describe your issue or request in detail..."
-                                                maxLength={1500}
-                                                className={`${inputCls} resize-none`}
-                                            />
+                                            <textarea rows={5} value={form.message} onChange={e => handleChange('message', e.target.value)} placeholder="Describe your issue or request in detail..." maxLength={1500} className={`${inputCls} resize-none custom-scrollbar`} />
                                         </InputField>
 
-                                        {/* API error */}
                                         {apiErr && (
-                                            <p className="text-red-400 text-sm flex items-center gap-2 bg-red-500/10 px-4 py-3 rounded-2xl border border-red-500/20">
-                                                <AlertCircle size={16} /> {apiErr}
-                                            </p>
+                                            <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-[13px] font-medium flex items-center gap-2 bg-red-500/10 px-5 py-3.5 rounded-xl border border-red-500/20">
+                                                <AlertCircle size={18} /> {apiErr}
+                                            </motion.p>
                                         )}
 
-                                        {/* Submit */}
+                                        {/* Landing Page style Primary Button */}
                                         <motion.button
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.97 }}
+                                            whileHover={{ scale: 1.02, y: -2 }}
+                                            whileTap={{ scale: 0.98 }}
                                             onClick={handleSubmit}
                                             disabled={loading}
-                                            className="w-full bg-[#00C4CC] text-[#0F172A] py-4 rounded-2xl font-black text-sm shadow-[0_8px_24px_rgba(0,196,204,0.25)] hover:brightness-110 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                            className="w-full mt-2 relative overflow-hidden group bg-gradient-to-br from-[#2DD4BF] to-[#0EA5E9] text-[#080C1C] py-4 rounded-xl font-bold text-[15px] tracking-wide shadow-[0_16px_48px_rgba(45,212,191,0.4)] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none ring-1 ring-[#2DD4BF]/30"
                                         >
-                                            {loading ? (
-                                                <><Loader2 size={18} className="animate-spin" /> Sending…</>
-                                            ) : (
-                                                <><Send size={16} /> Send Request</>
-                                            )}
+                                            <span className="relative z-10 flex items-center gap-2">
+                                                {loading ? <><Loader2 size={20} className="animate-spin" /> Sending…</> : <><Send size={18} /> Submit Request</>}
+                                            </span>
+                                            {/* Button Hover Glow Overlay */}
+                                            <div className="absolute inset-0 bg-gradient-to-br from-white/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                                         </motion.button>
                                     </motion.div>
                                 )}
@@ -314,6 +322,29 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                     </motion.div>
                 </motion.div>
             )}
+
+            <style>{`
+                @keyframes shimmer {
+                    0% { background-position: -200% center; }
+                    100% { background-position: 200% center; }
+                }
+                .animate-shimmer {
+                    animation: shimmer 3s linear infinite;
+                }
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255, 255, 255, 0.2);
+                }
+            `}</style>
         </AnimatePresence>
     );
 };
