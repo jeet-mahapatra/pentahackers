@@ -1,6 +1,5 @@
-
-
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import axios from "axios";
 
 const AppointmentList = () => {
@@ -10,17 +9,9 @@ const AppointmentList = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:3000/api/user/appointment/list"
-        );
-
+        const res = await axios.get("http://localhost:3000/api/user/appointment/list");
         if (res.data.success) {
-          const sorted = res.data.data.sort((a, b) => {
-            const dateA = new Date(a.appointmentDate || 0);
-            const dateB = new Date(b.appointmentDate || 0);
-            return dateB - dateA;
-          });
-
+          const sorted = res.data.data.sort((a, b) => new Date(b.appointmentDate || 0) - new Date(a.appointmentDate || 0));
           setAppointments(sorted);
         }
       } catch (err) {
@@ -29,108 +20,103 @@ const AppointmentList = () => {
         setLoading(false);
       }
     };
-
     fetchAppointments();
   }, []);
 
   if (loading) {
     return (
-      <div className="p-5 text-center text-gray-400 bg-[#070A1A] min-h-screen">
-        Loading appointments...
+      <div className="flex items-center justify-center min-h-screen bg-[#080C1C] text-[#2DD4BF] italic font-serif text-xl">
+        <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+          Syncing records...
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#070A1A] text-white rounded-2xl shadow-lg p-4 sm:p-5 min-h-screen">
+    <div className="min-h-screen bg-[#080C1C] text-white p-6 md:p-10 font-sans relative overflow-hidden">
+      {/* BACKGROUND DECOR */}
+      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#2DD4BF]/5 blur-[120px] rounded-full pointer-events-none" />
 
-      {/* HEADER */}
-      <h2 className="text-lg sm:text-xl font-bold mb-4 text-white">
-        All Appointments
-      </h2>
+      <div className="max-w-5xl mx-auto relative z-10">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="mb-12">
+          <span className="text-[#2DD4BF] text-xs font-bold tracking-[0.3em] uppercase">Appointments</span>
+          <h2 className="text-4xl md:text-5xl font-bold font-serif italic mt-2">All Activity</h2>
+          <p className="text-white/40 mt-3 font-medium">History and upcoming schedules across all services.</p>
+        </motion.div>
 
-      {/* SCROLLABLE LIST */}
-      <div className="max-h-[500px] overflow-y-auto pr-1 sm:pr-2 space-y-4">
+        <div className="space-y-6">
+          {appointments.length === 0 ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white/[0.02] border border-white/10 rounded-[2rem] p-20 text-center">
+              <p className="text-white/20 italic text-lg">No appointments found in your logs.</p>
+            </motion.div>
+          ) : (
+            appointments.map((item, idx) => (
+              <motion.div
+                key={item._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                className="group relative bg-white/[0.02] border border-white/10 rounded-3xl p-6 md:p-8 hover:bg-white/[0.05] transition-all duration-500 overflow-hidden"
+              >
+                <div className="flex flex-col md:flex-row justify-between gap-6 relative z-10">
+                  <div className="flex-1 space-y-4">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-xl md:text-2xl font-bold group-hover:text-[#2DD4BF] transition-colors duration-300">
+                        {item.requestType}
+                      </h3>
+                      {item.isUrgent && (
+                        <span className="bg-red-500/10 text-red-500 border border-red-500/20 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                          Urgent ◈
+                        </span>
+                      )}
+                    </div>
 
-        {appointments.length === 0 ? (
-          <p className="text-gray-400">No appointments found</p>
-        ) : (
-          appointments.map((item) => (
-            <div
-              key={item._id}
-              className="group border border-white/10 rounded-xl p-3 sm:p-4 bg-white/5 backdrop-blur-md transition-all duration-300 hover:shadow-xl hover:scale-[1.01]"
-            >
+                    <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm text-white/40">
+                      <span className="flex items-center gap-2">
+                        <span className="text-[#2DD4BF]">👤</span> {item.serviceProvider?.name || "N/A"}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <span className="text-[#F59E0B]">📅</span> {item.appointmentDate ? new Date(item.appointmentDate).toLocaleDateString() : "Not set"}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <span className="text-[#2DD4BF]">⏰</span> {item.appointmentTime || "Not set"}
+                      </span>
+                    </div>
+                  </div>
 
-              {/* TOP */}
-              <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0">
-
-                {/* LEFT */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base sm:text-lg font-semibold group-hover:text-cyan-400 transition truncate">
-                    {item.requestType}
-                  </h3>
-
-                  <p className="text-sm text-gray-400">
-                    Provider: {item.serviceProvider?.name || "N/A"}
-                  </p>
-
-                  <p className="text-sm text-gray-400">
-                    Date:{" "}
-                    {item.appointmentDate
-                      ? new Date(item.appointmentDate).toLocaleDateString()
-                      : "Not set"}
-                  </p>
-
-                  <p className="text-sm text-gray-400">
-                    Time: {item.appointmentTime || "Not set"}
-                  </p>
+                  <div className="flex items-center justify-between md:justify-end md:min-w-[140px]">
+                    <StatusBadge status={item.status} />
+                    <motion.div className="ml-6 w-10 h-10 rounded-full border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:border-[#2DD4BF]/50 transition-all duration-500">
+                      <span className="text-[#2DD4BF]">◈</span>
+                    </motion.div>
+                  </div>
                 </div>
 
-                {/* RIGHT */}
-                <div className="self-start sm:self-center">
-                  <StatusBadge status={item.status} />
-                </div>
-              </div>
-
-              {/* URGENT */}
-              {item.isUrgent && (
-                <div className="mt-2">
-                  <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded-full">
-                    Urgent Request
-                  </span>
-                </div>
-              )}
-
-              {/* ANIMATION LINE */}
-              <div className="h-[2px] w-0 group-hover:w-full transition-all duration-500 bg-gradient-to-r from-cyan-400 to-purple-500 mt-3"></div>
-            </div>
-          ))
-        )}
-
+                {/* ANIMATED PROGRESS LINE */}
+                <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-[#2DD4BF] to-[#0EA5E9] group-hover:w-full transition-all duration-1000" />
+              </motion.div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export { AppointmentList };
-
-/* =========================
-   STATUS BADGE COMPONENT
-========================= */
 const StatusBadge = ({ status }) => {
-  const base =
-    "px-3 py-1 text-xs rounded-full font-medium capitalize whitespace-nowrap";
-
   const styles = {
-    new: "bg-blue-500/20 text-blue-300",
-    pending: "bg-yellow-500/20 text-yellow-300",
-    completed: "bg-green-500/20 text-green-300",
-    cancelled: "bg-red-500/20 text-red-300",
+    new: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+    completed: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    cancelled: "bg-red-500/10 text-red-400 border-red-500/20",
   };
 
   return (
-    <span className={`${base} ${styles[status] || "bg-gray-700 text-gray-300"}`}>
-      {status}
+    <span className={`px-5 py-2 text-[10px] font-black uppercase tracking-tighter rounded-full border ${styles[status] || "bg-white/5 text-white/40 border-white/10"}`}>
+      {status === 'pending' ? 'Accepted' : status}
     </span>
   );
 };
+
+export { AppointmentList };

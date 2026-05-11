@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
 export const UserFindServices = () => {
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProvider, setSelectedProvider] = useState(null);
-
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -17,9 +17,7 @@ export const UserFindServices = () => {
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 500);
+    const timer = setTimeout(() => setDebouncedSearch(search), 500);
     return () => clearTimeout(timer);
   }, [search]);
 
@@ -30,19 +28,14 @@ export const UserFindServices = () => {
         const res = await axios.get("/api/providerProfile/approved", {
           params: { search: debouncedSearch },
         });
-
-        const sortedProviders = res.data.providers.sort(
-          (a, b) => (b.avgRating || 0) - (a.avgRating || 0)
-        );
-
-        setProviders(sortedProviders);
+        const sorted = res.data.providers.sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
+        setProviders(sorted);
       } catch (err) {
         console.log("Provider fetch error:", err.message);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProviders();
   }, [debouncedSearch]);
 
@@ -55,16 +48,9 @@ export const UserFindServices = () => {
         appointmentTime: form.appointmentTime,
         isUrgent: form.isUrgent,
       });
-
       alert("✅ Appointment booked!");
       setSelectedProvider(null);
-
-      setForm({
-        requestType: "",
-        appointmentDate: "",
-        appointmentTime: "",
-        isUrgent: false,
-      });
+      setForm({ requestType: "", appointmentDate: "", appointmentTime: "", isUrgent: false });
     } catch (err) {
       console.log("Booking error:", err.response?.data || err.message);
     }
@@ -73,185 +59,185 @@ export const UserFindServices = () => {
   const renderStars = (rating = 0) => {
     const rounded = Math.round(rating);
     return (
-      <>
+      <div className="flex gap-0.5 text-[#F59E0B]">
         {"★".repeat(rounded)}
-        {"☆".repeat(5 - rounded)}
-      </>
+        <span className="opacity-30">{"★".repeat(5 - rounded)}</span>
+      </div>
     );
   };
 
   return (
-    <div className="p-6 bg-[#070A1A] min-h-screen text-white">
-      <h1 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 text-transparent bg-clip-text">
-        Find Services
-      </h1>
-
-      {/* SEARCH */}
-      <div className="mb-6 flex justify-center">
-        <input
-          type="text"
-          placeholder="Search by name, service, or location..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full md:w-1/2 p-3 bg-white/5 border border-white/10 text-white rounded-xl backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    <div className="min-h-screen bg-[#080C1C] text-white p-6 relative overflow-hidden font-sans">
+      {/* ── BACKGROUND AURORA ── */}
+      <div className="absolute inset-0 pointer-events-none">
+        <motion.div
+          animate={{ x: [0, 40, 0], y: [0, -30, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute w-[600px] h-[600px] top-[-10%] left-[-10%] rounded-full bg-[#2DD4BF]/5 blur-[100px]"
+        />
+        <motion.div
+          animate={{ x: [0, -50, 0], y: [0, 50, 0] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute w-[500px] h-[500px] bottom-[-10%] right-[-10%] rounded-full bg-[#F59E0B]/5 blur-[100px]"
         />
       </div>
 
-      {/* PROVIDERS */}
-      {loading ? (
-        <h2 className="text-center mt-10 text-gray-400">Loading...</h2>
-      ) : providers.length === 0 ? (
-        <h2 className="text-center text-gray-400 mt-10">No providers found</h2>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {providers.map((p) => {
-            const avg = p.avgRating ?? 0;
-            const min = p.minRating ?? 0;
-            const max = p.maxRating ?? 0;
-            const total = p.totalReviews ?? 0;
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
+          <span className="text-[#2DD4BF] text-xs font-bold tracking-[0.3em] uppercase">Discovery</span>
+          <h1 className="text-4xl md:text-5xl font-bold font-serif italic tracking-tight mt-2">
+            Find <span className="not-italic" style={{
+              background: "linear-gradient(135deg, #2DD4BF 0%, #F59E0B 100%)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+            }}>Services</span>
+          </h1>
+        </motion.div>
 
-            return (
-              <div
+        {/* SEARCH BAR */}
+        <div className="flex justify-center mb-12">
+          <motion.div
+            initial={{ width: "100%", opacity: 0 }}
+            animate={{ width: "100%", opacity: 1 }}
+            className="max-w-2xl w-full relative"
+          >
+            <input
+              type="text"
+              placeholder="Search by name, service, or location..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full p-4 bg-white/[0.03] border border-white/10 rounded-2xl backdrop-blur-3xl focus:outline-none focus:border-[#2DD4BF]/50 transition-all placeholder:text-white/20 shadow-2xl"
+            />
+            <div className="absolute right-5 top-1/2 -translate-y-1/2 text-[#2DD4BF] opacity-50">✦</div>
+          </motion.div>
+        </div>
+
+        {/* PROVIDERS GRID */}
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-10 h-10 border-2 border-[#2DD4BF] border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {providers.map((p, idx) => (
+              <motion.div
                 key={p._id}
-                className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl shadow-lg p-5 transition transform hover:-translate-y-2 hover:shadow-purple-500/20 duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                whileHover={{ y: -5 }}
+                className="group bg-white/[0.02] border flex flex-col justify-evenly border-white/10 backdrop-blur-3xl rounded-[2.5rem] p-8 hover:bg-white/[0.05] hover:border-[#2DD4BF]/30 transition-all duration-500 shadow-xl relative overflow-hidden"
               >
-                <h2 className="text-xl font-semibold capitalize text-white">
-                  {p.username}
-                </h2>
-
-                <p className="text-gray-400 text-wrap">{p.email}</p>
-
-                <p className="mt-2 text-gray-300">
-                  <span className="font-semibold">Service:</span> {p.serviceType}
-                </p>
-
-                {/* FIXED: Rendering address properties instead of the whole object */}
-                <p className="mt-2 text-sm text-gray-400">
-                  {p.address ? (
-                    `${p.address.street}, ${p.address.city} - ${p.address.pincode}`
-                  ) : (
-                    "No address provided"
-                  )}
-                </p>
-
-                {/* RATINGS */}
-                <div className="mt-3 border-t border-white/10 pt-3">
-                  {total > 0 ? (
-                    <>
-                      <div className="flex justify-between items-center">
-                        <p className="text-yellow-400 font-semibold text-lg">
-                          ⭐ {avg.toFixed(1)}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {total} review{total > 1 && "s"}
-                        </p>
-                      </div>
-
-                      <div className="text-yellow-300 text-sm mt-1">
-                        {renderStars(avg)}
-                      </div>
-
-                      <p className="text-xs text-gray-500 mt-1">
-                        Min: {min} | Max: {max}
-                      </p>
-                    </>
-                  ) : (
-                    <p className="text-gray-400 text-sm">No reviews yet</p>
-                  )}
-                </div>
-
-                {/* SLOTS */}
-                <div className="mt-3">
-                  <p className="font-semibold text-gray-300">Available Slots:</p>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {p.timeSlots?.slice(0, 4).map((slot, i) => (
-                      <span
-                        key={i}
-                        className="bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded-lg text-sm"
-                      >
-                        {slot}
-                      </span>
-                    ))}
-                    {p.timeSlots?.length > 4 && (
-                      <span className="text-gray-400 text-sm">
-                        +{p.timeSlots.length - 4} more
-                      </span>
-                    )}
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-14 h-14 bg-gradient-to-tr from-[#2DD4BF] to-[#0EA5E9] rounded-2xl flex items-center justify-center text-[#080C1C] font-black text-xl shadow-lg">
+                    {p.username.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[#2DD4BF] text-[10px] font-black uppercase tracking-widest">{p.serviceType}</p>
+                    <div className="mt-1">{renderStars(p.avgRating)}</div>
                   </div>
                 </div>
 
-                <button
+                <h2 className="text-2xl font-bold font-serif italic mb-2 capitalize">{p.username}</h2>
+                <p className="text-white/30 text-xs mb-4 truncate">{p.email}</p>
+
+                <div className="space-y-3 mb-8">
+                  <div className="flex items-start gap-3 text-sm text-white/60">
+                    <span className="text-[#F59E0B] mt-1">📍</span>
+                    <span className="leading-relaxed">
+                      {p.address ? `${p.address.street}, ${p.address.city}` : "Location hidden"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mb-8">
+                  <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-3">Available Slots</p>
+                  <div className="flex flex-wrap gap-2">
+                    {p.timeSlots?.slice(0, 3).map((slot, i) => (
+                      <span key={i} className="text-[10px] bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/20 px-3 py-1.5 rounded-full font-bold">
+                        {slot}
+                      </span>
+                    ))}
+                    {p.timeSlots?.length > 3 && <span className="text-[10px] text-white/20 self-center">+{p.timeSlots.length - 3}</span>}
+                  </div>
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setSelectedProvider(p)}
-                  className="mt-4 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 text-white py-2 rounded-xl"
+                  className="w-full py-4 bg-gradient-to-r from-[#2DD4BF] to-[#0EA5E9] text-[#080C1C] font-black rounded-2xl shadow-lg shadow-[#2DD4BF]/20 uppercase tracking-widest text-xs transition-all"
                 >
-                  Book Appointment
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* MODAL */}
-      {selectedProvider && (
-        <div className="fixed inset-0 bg-black/70 flex justify-center items-center">
-          <div className="bg-[#0B0F2A] border border-white/10 p-6 rounded-2xl w-[400px]">
-            <h2 className="text-xl font-bold mb-4 text-white">
-              Book with {selectedProvider.username}
-            </h2>
-
-            <input
-              type="date"
-              value={form.appointmentDate}
-              className="w-full mb-3 p-2 bg-white/5 border border-white/10 rounded text-white"
-              onChange={(e) =>
-                setForm({ ...form, appointmentDate: e.target.value })
-              }
-            />
-
-            <select
-              className="w-full mb-3 p-2 bg-white/5 border border-white/10 rounded text-white"
-              value={form.appointmentTime}
-              onChange={(e) =>
-                setForm({ ...form, appointmentTime: e.target.value })
-              }
-            >
-              <option value="">Select Time Slot</option>
-              {selectedProvider.timeSlots?.map((slot, i) => (
-                <option key={i} value={slot}>
-                  {slot}
-                </option>
-              ))}
-            </select>
-
-            <label className="flex items-center gap-2 mb-3 text-gray-300">
-              <input
-                type="checkbox"
-                checked={form.isUrgent}
-                onChange={(e) =>
-                  setForm({ ...form, isUrgent: e.target.checked })
-                }
-              />
-              Mark as Urgent
-            </label>
-
-            <div className="flex justify-between">
-              <button
-                onClick={handleBooking}
-                className="bg-green-500 text-white px-4 py-2 rounded-lg"
-              >
-                Confirm
-              </button>
-              <button
-                onClick={() => setSelectedProvider(null)}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg"
-              >
-                Cancel
-              </button>
-            </div>
+                  Book Now ◈
+                </motion.button>
+              </motion.div>
+            ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* ── MODAL ── */}
+      <AnimatePresence>
+        {selectedProvider && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-[#080C1C]/90 backdrop-blur-md z-[100] flex justify-center items-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
+              className="bg-[#0D1226] border border-white/10 p-8 rounded-[3rem] w-full max-w-md shadow-2xl relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#2DD4BF]/10 blur-3xl pointer-events-none" />
+
+              <h2 className="text-3xl font-bold font-serif italic mb-6">Secure Appointment</h2>
+              <p className="text-white/40 text-sm mb-8">Booking with <span className="text-white">{selectedProvider.username}</span></p>
+
+              <div className="space-y-6 mb-10">
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase font-bold text-white/30 ml-1">Appointment Date</label>
+                  <input
+                    type="date"
+                    value={form.appointmentDate}
+                    className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-[#2DD4BF]/50"
+                    onChange={(e) => setForm({ ...form, appointmentDate: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase font-bold text-white/30 ml-1">Preferred Time</label>
+                  <select
+                    className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-[#2DD4BF]/50 appearance-none"
+                    value={form.appointmentTime}
+                    onChange={(e) => setForm({ ...form, appointmentTime: e.target.value })}
+                  >
+                    <option value="">Select a slot</option>
+                    {selectedProvider.timeSlots?.map((slot, i) => (
+                      <option key={i} value={slot} className="bg-[#0D1226]">{slot}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <label className="flex items-center gap-4 p-4 bg-[#FB923C]/5 border border-[#FB923C]/20 rounded-2xl cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={form.isUrgent}
+                    onChange={(e) => setForm({ ...form, isUrgent: e.target.checked })}
+                    className="w-5 h-5 accent-[#FB923C] rounded"
+                  />
+                  <div>
+                    <p className="text-xs font-black text-[#FB923C] uppercase tracking-tighter">Urgent Priority</p>
+                    <p className="text-[10px] text-[#FB923C]/50 leading-tight">Requests prioritized handling</p>
+                  </div>
+                </label>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <button onClick={handleBooking} className="py-4 bg-gradient-to-r from-[#2DD4BF] to-[#0EA5E9] text-[#080C1C] font-black rounded-2xl uppercase tracking-widest text-xs shadow-lg shadow-[#2DD4BF]/20">Confirm</button>
+                <button onClick={() => setSelectedProvider(null)} className="py-4 bg-white/5 border border-white/10 text-white font-bold rounded-2xl uppercase tracking-widest text-xs">Cancel</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 axios.defaults.withCredentials = true;
 
@@ -194,9 +195,12 @@ export const ProviderRegister = () => {
       await axios.post("http://localhost:3000/api/auth/register/provider", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
+      toast.success("Registration successful! Redirecting to login...");
       navigate("/login");
     } catch (err) {
       setSubmitError(err.response?.data?.message || "Registration failed. Please try again.");
+      toast.error("Registration failed. Please try again.");
     }
     setLoading(false);
   };
@@ -383,7 +387,11 @@ export const ProviderRegister = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10 relative overflow-hidden"
-      style={{ background: "radial-gradient(ellipse 90% 60% at 50% -10%, #0d2d2a 0%, #050d0c 50%, #020608 100%)" }}>
+      style={{ background: "rgb(8, 12, 28)" }}>
+
+      <Link to="/" className="absolute top-11 left-11 text-[#2DD4BF] font-bold text-lg z-10">
+        ← Back to Dashboard
+      </Link>
 
       {/* Grid texture */}
       <div className="absolute inset-0 pointer-events-none" style={{

@@ -28,6 +28,21 @@ svg {
   background: #374151;
   border-radius: 10px;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+.custom-scrollbarx::-webkit-scrollbar-thumb:hover {
+  background: #00C4CC;
+}
+
+.custom-scrollbarx::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbarx::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbarx::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 10px;
+}
+.custom-scrollbarx::-webkit-scrollbar-thumb:hover {
   background: #00C4CC;
 }

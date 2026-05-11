@@ -2,116 +2,101 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-
-axios.defaults.withCredentials = true;
+import { toast } from "react-toastify";
 
 export const UserRegister = () => {
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "user",
-  });
-
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "user" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     try {
-      await axios.post(
-        "http://localhost:3000/api/auth/register/user",
-        formData
-      );
-
+      await axios.post("http://localhost:3000/api/auth/register/user", formData);
+      
+      toast.success("Registration successful! Redirecting to login...");
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
+      toast.error("Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#070A1A] text-white relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#080C1C] text-white relative overflow-hidden py-12">
+      {/* Background Orbs */}
+      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#2DD4BF]/10 rounded-full blur-[120px]" />
+      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[#F59E0B]/10 rounded-full blur-[120px]" />
 
-      {/* Background Glow */}
-      <div className="absolute w-[400px] h-[400px] bg-indigo-600/20 blur-[140px] rounded-full top-[-100px] left-[-100px]" />
-      <div className="absolute w-[400px] h-[400px] bg-purple-600/20 blur-[140px] rounded-full bottom-[-100px] right-[-100px]" />
+      <Link to="/" className="absolute top-11 left-11 text-[#2DD4BF] font-bold text-lg z-10">
+        ← Back to Dashboard
+      </Link>
 
-      {/* Card */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="w-96 p-8 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-[480px] px-6 relative z-10"
       >
+        <div className="bg-[#0D1226]/40 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-10 shadow-2xl">
+          <div className="text-center mb-10">
+            <span className="text-[#2DD4BF] text-xs font-bold tracking-[0.2em] uppercase">Get Started</span>
+            <h2 className="text-4xl font-bold font-serif mt-2">Create Account</h2>
+          </div>
 
-        <h2 className="text-3xl font-bold text-center mb-6">
-          Create Account
-        </h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
+              <input
+                name="name"
+                placeholder="Full Name"
+                onChange={handleChange}
+                required
+                className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#2DD4BF]/50 focus:bg-white/10 transition-all"
+              />
+              <input
+                name="email"
+                type="email"
+                placeholder="Email address"
+                onChange={handleChange}
+                required
+                className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#2DD4BF]/50 focus:bg-white/10 transition-all"
+              />
+              <input
+                name="password"
+                type="password"
+                placeholder="Create password"
+                onChange={handleChange}
+                required
+                className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#2DD4BF]/50 focus:bg-white/10 transition-all"
+              />
+            </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+            {error && <p className="text-[#FB923C] text-xs text-center">{error}</p>}
 
-          <input
-            name="name"
-            placeholder="Full Name"
-            onChange={handleChange}
-            className="w-full p-3 rounded-lg bg-transparent border border-white/30 outline-none focus:border-indigo-400"
-          />
+            <motion.button
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 mt-4 bg-gradient-to-r from-[#2DD4BF] to-[#F59E0B] text-[#080C1C] font-bold rounded-2xl shadow-xl shadow-[#2DD4BF]/10 disabled:opacity-50"
+            >
+              {loading ? "Processing..." : "Create Free Account →"}
+            </motion.button>
+          </form>
 
-          <input
-            name="email"
-            placeholder="Email Address"
-            onChange={handleChange}
-            className="w-full p-3 rounded-lg bg-transparent border border-white/30 outline-none focus:border-indigo-400"
-          />
-
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            onChange={handleChange}
-            className="w-full p-3 rounded-lg bg-transparent border border-white/30 outline-none focus:border-indigo-400"
-          />
-
-          {error && (
-            <p className="text-red-400 text-sm text-center">
-              {error}
-            </p>
-          )}
-
-          <motion.button
-            type="submit"
-            disabled={loading}
-            whileHover={{ scale: loading ? 1 : 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 font-semibold shadow-lg"
-          >
-            {loading ? "Creating Account..." : "Register as User"}
-          </motion.button>
-
-        </form>
-
-        <p className="text-center mt-5 text-sm text-gray-300">
-          Already have an account?{" "}
-          <Link to="/login" className="text-indigo-400 hover:underline">
-            Login
-          </Link>
-        </p>
-
+          <p className="text-center mt-8 text-sm text-white/30 font-medium">
+            Already have an account?{" "}
+            <Link to="/login" className="text-[#2DD4BF] hover:underline underline-offset-4">
+              Sign in here
+            </Link>
+          </p>
+        </div>
       </motion.div>
     </div>
   );

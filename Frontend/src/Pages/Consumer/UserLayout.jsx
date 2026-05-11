@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { UserContext } from "../../Context/UserContext";
 
@@ -8,8 +9,6 @@ axios.defaults.withCredentials = true;
 export const UserLayout = () => {
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
-
-  // ================= SIDEBAR TOGGLE (mobile only) =================
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -18,159 +17,148 @@ export const UserLayout = () => {
     } catch (err) {
       console.log(err.message);
     }
-
     setUser(null);
     navigate("/login");
   };
 
   const navClass = ({ isActive }) =>
-    `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-sm font-medium ${
-      isActive
-        ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 text-white shadow-md"
-        : "text-gray-300 hover:bg-white/5"
+    `flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-500 text-sm font-bold tracking-tight ${isActive
+      ? "bg-gradient-to-r from-[#2DD4BF] to-[#0EA5E9] text-[#080C1C] shadow-[0_10px_20px_rgba(45,212,191,0.2)]"
+      : "text-white/50 hover:text-white hover:bg-white/5"
     }`;
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center h-screen text-lg text-white bg-[#070A1A]">
-        Loading...
+      <div className="flex items-center justify-center h-screen bg-[#080C1C] text-[#2DD4BF] font-serif italic text-xl">
+        Loading Session...
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-[#070A1A] text-white">
+    <div className="flex h-screen bg-[#080C1C] text-white font-sans overflow-hidden">
+      {/* GLOBAL SCROLLBAR OVERRIDE */}
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { 
+          background: rgba(255, 255, 255, 0.05); 
+          border-radius: 10px; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+      `}</style>
 
-      {/* ================= MOBILE OVERLAY ================= */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-20 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      {/* MOBILE OVERLAY */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* SIDEBAR */}
-      <div
-        className={`fixed md:static z-30 h-full w-64 bg-white/5 backdrop-blur-xl border-r border-white/10 shadow-lg flex flex-col justify-between p-5 transition-transform duration-300
+      <aside
+        className={`fixed md:static z-50 h-full w-72 bg-[#0D1226]/80 backdrop-blur-3xl border-r border-white/5 flex flex-col justify-between p-6 transition-all duration-500 ease-in-out
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
-
-        {/* TOP */}
         <div>
-
           {/* LOGO */}
-          <div className="flex items-center gap-3 mb-8">
-            <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 text-white px-3 py-2 rounded-lg font-bold">
-              EF
+          <div className="flex items-center gap-3 mb-10 px-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-[#2DD4BF] to-[#F59E0B] rounded-xl flex items-center justify-center text-[#080C1C] font-black shadow-lg">
+              ◈
             </div>
             <div>
-              <h2 className="font-bold text-lg">EasyFind</h2>
-              <p className="text-xs text-gray-400">
-                Find verified professionals
+              <h2 className="font-bold font-serif italic text-xl leading-none">
+                Service<span className="text-[#2DD4BF]">Hub</span>
+              </h2>
+              <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-black mt-1">
+                EasyFind Protocol
               </p>
             </div>
           </div>
 
-          <p className="text-xs text-gray-400 mb-3">Quick Actions</p>
+          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4 px-2">
+            Management
+          </p>
 
-          <ul className="space-y-2">
-
-            <li>
-              <NavLink to="/user/dashboard" className={navClass} onClick={() => setSidebarOpen(false)}>
-                🏠 Dashboard
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink to="/user/findservices" className={navClass} onClick={() => setSidebarOpen(false)}>
-                🔍 Find Services
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink to="/user/bookings" className={navClass} onClick={() => setSidebarOpen(false)}>
-                📅 My Appointments
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink to="/user/chats" className={navClass} onClick={() => setSidebarOpen(false)}>
-                💬 Chats
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink to="/user/reviews" className={navClass} onClick={() => setSidebarOpen(false)}>
-                ⭐ My Reviews
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink to="/user/support" className={navClass} onClick={() => setSidebarOpen(false)}>
-                📞 Support
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink to="/user/profile" className={navClass} onClick={() => setSidebarOpen(false)}>
-                👤 Profile Settings
-              </NavLink>
-            </li>
-
-          </ul>
+          <nav className="space-y-2">
+            <NavLink to="/user/dashboard" className={navClass} onClick={() => setSidebarOpen(false)}>
+              <span className="text-lg">🏠</span> Dashboard
+            </NavLink>
+            <NavLink to="/user/findservices" className={navClass} onClick={() => setSidebarOpen(false)}>
+              <span className="text-lg">🔍</span> Find Services
+            </NavLink>
+            <NavLink to="/user/bookings" className={navClass} onClick={() => setSidebarOpen(false)}>
+              <span className="text-lg">📅</span> Appointments
+            </NavLink>
+            <NavLink to="/user/chats" className={navClass} onClick={() => setSidebarOpen(false)}>
+              <span className="text-lg">💬</span> Secure Chats
+            </NavLink>
+            <NavLink to="/user/reviews" className={navClass} onClick={() => setSidebarOpen(false)}>
+              <span className="text-lg">⭐</span> My Reviews
+            </NavLink>
+            <NavLink to="/user/profile" className={navClass} onClick={() => setSidebarOpen(false)}>
+              <span className="text-lg">👤</span> Profile Settings
+            </NavLink>
+          </nav>
         </div>
 
         {/* LOGOUT */}
-        <div>
+        <div className="pt-6 border-t border-white/5">
           <button
             onClick={handleLogout}
-            className="w-full text-left text-red-400 font-semibold px-4 py-2 rounded-lg hover:bg-red-500/10 transition"
+            className="w-full flex items-center gap-3 px-5 py-3 rounded-2xl text-red-400 font-bold text-sm hover:bg-red-500/10 transition-all group"
           >
-            🚪 Logout
+            <span className="group-hover:rotate-12 transition-transform">🚪</span> Sign Out
           </button>
         </div>
+      </aside>
 
-      </div>
-
-      {/* MAIN */}
-      <div className="flex-1 flex flex-col">
-
+      {/* MAIN SECTION */}
+      <main className="flex-1 flex flex-col min-w-0 relative">
         {/* TOPBAR */}
-        <div className="flex justify-between items-center bg-white/5 backdrop-blur-xl px-4 md:px-6 py-4 border-b border-white/10">
-
-          {/* HAMBURGER (mobile only) */}
+        <header className="flex justify-between items-center bg-[#080C1C]/60 backdrop-blur-md px-6 md:px-10 py-5 border-b border-white/5 z-30">
           <button
-            className="md:hidden text-white text-2xl leading-none"
+            className="md:hidden text-white w-10 h-10 flex items-center justify-center bg-white/5 rounded-xl"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             ☰
           </button>
 
-          <div className="flex items-center gap-3 md:gap-4 ml-auto">
-
-            <span className="text-gray-400">🔔</span>
-
-            <span className="font-medium text-white hidden sm:inline">
-              {user?.username || "User"}
-            </span>
+          <div className="flex items-center gap-4 ml-auto">
+            <div className="hidden sm:flex items-center gap-3 bg-white/5 border border-white/5 px-4 py-2 rounded-2xl">
+              <div className="w-2 h-2 rounded-full bg-[#2DD4BF] animate-pulse" />
+              <span className="text-xs font-bold text-white/60 tracking-tight">
+                {user?.username || "User"}
+              </span>
+            </div>
 
             <button
               onClick={handleLogout}
-              className="bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 text-white px-3 md:px-4 py-1 rounded-lg text-sm"
+              className="bg-gradient-to-r from-[#2DD4BF] to-[#0EA5E9] text-[#080C1C] px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-[#2DD4BF]/10 active:scale-95 transition-transform"
             >
               Logout
             </button>
-
           </div>
+        </header>
 
+        {/* CONTENT AREA */}
+        <div className="flex-1 overflow-y-auto relative custom-scrollbar">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-[#2DD4BF]/5 blur-[120px] rounded-full" />
+          </div>
+          <div className="relative z-10">
+            <Outlet />
+          </div>
         </div>
-
-        {/* CONTENT */}
-        <div className="p-4 md:p-6 overflow-y-auto">
-          <Outlet />
-        </div>
-
-      </div>
+      </main>
     </div>
   );
 };

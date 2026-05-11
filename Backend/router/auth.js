@@ -9,6 +9,7 @@ import { getOTPTemplate } from "../utils/emailTemplates.js";
 import validator from "validator";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { upload } from "../Middleware/Multer.js";
+import { authMiddleware } from "../Middleware/Auth.Middleware.js";
 
 const router = express.Router();
 
@@ -57,20 +58,20 @@ router.post(
 router.post(
   "/register/provider",
   upload.fields([
-    { name: "idProof",       maxCount: 1 },
-    { name: "photoproof",    maxCount: 1 },
+    { name: "idProof", maxCount: 1 },
+    { name: "photoproof", maxCount: 1 },
     { name: "certification", maxCount: 1 },
   ]),
   [
-    check("name",        "Name required").notEmpty(),
-    check("email",       "Valid email required").isEmail(),
-    check("password",    "Min 6 characters").isLength({ min: 6 }),
-    check("phone",       "Valid phone required").isMobilePhone(),
+    check("name", "Name required").notEmpty(),
+    check("email", "Valid email required").isEmail(),
+    check("password", "Min 6 characters").isLength({ min: 6 }),
+    check("phone", "Valid phone required").isMobilePhone(),
     check("serviceType", "Service type required").notEmpty(),
-    check("experience",  "Experience level required").notEmpty(),
-    check("address",     "Street address required").notEmpty(),
-    check("city",        "City required").notEmpty(),
-    check("pincode",     "Valid 6-digit pincode required").isLength({ min: 6, max: 6 }).isNumeric(),
+    check("experience", "Experience level required").notEmpty(),
+    check("address", "Street address required").notEmpty(),
+    check("city", "City required").notEmpty(),
+    check("pincode", "Valid 6-digit pincode required").isLength({ min: 6, max: 6 }).isNumeric(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -88,8 +89,8 @@ router.post(
       if (existing) return res.status(400).json({ success: false, message: "Provider already exists" });
 
       // Validate files
-      const idProofPath       = req.files?.idProof?.[0]?.path;
-      const photoProofPath    = req.files?.photoproof?.[0]?.path;
+      const idProofPath = req.files?.idProof?.[0]?.path;
+      const photoProofPath = req.files?.photoproof?.[0]?.path;
       const certificationPath = req.files?.certification?.[0]?.path;
 
       if (!idProofPath || !photoProofPath) {
@@ -104,7 +105,7 @@ router.post(
       }
 
       // Upload to Cloudinary
-      const idProofUpload    = await uploadOnCloudinary(idProofPath);
+      const idProofUpload = await uploadOnCloudinary(idProofPath);
       const photoProofUpload = await uploadOnCloudinary(photoProofPath);
 
       if (!idProofUpload || !photoProofUpload) {
@@ -133,8 +134,8 @@ router.post(
         bio: bio || null,
         address: { street: address, city, pincode },
         documents: {
-          idProof:       idProofUpload.secure_url,
-          photoproof:    photoProofUpload.secure_url,
+          idProof: idProofUpload.secure_url,
+          photoproof: photoProofUpload.secure_url,
           certification: certificationUpload ? certificationUpload.secure_url : null,
         },
         verificationStatus: "pending",
@@ -176,7 +177,7 @@ router.post(
       if (!user) user = await Provider.findOne({ $or: [{ username: sanitized }, { email: sanitized }] });
 
       if (!user) return res.status(400).json({ success: false, message: "Invalid credentials" });
-      
+
       // Prevent admins from logging in through the user portal
       if (user.role === 'admin') return res.status(403).json({ success: false, message: "Please use the admin login portal." });
 
@@ -228,7 +229,7 @@ router.post(
 
       // Only find users strictly assigned the 'admin' role
       const admin = await User.findOne({ email: normalizedEmail, role: 'admin' });
-      
+
       if (!admin) return res.status(400).json({ success: false, message: "Invalid admin credentials" });
 
       const isMatch = await bcrypt.compare(password, admin.password);
@@ -341,5 +342,45 @@ router.post(
     }
   }
 );
+
+router.put("/profile/update", authMiddleware, async (req, res) => {
+    try {
+        const { 
+            fullName, phoneNumber, bio, 
+            address, state, country, pinCode, timezone 
+        } = req.body;
+
+        // Fetch user and update optional fields
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.id,
+            {
+                $set: {
+                    fullName,
+                    phoneNumber,
+                    bio,
+                    address,
+                    state,
+                    country,
+                    pinCode,
+                    timezone
+                }
+            },
+            { new: true, runValidators: true }
+        ).select("-password");
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "Identity not found" });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            user: updatedUser
+        });
+    } catch (error) {
+        console.error("UPDATE ERROR:", error.message);
+        return res.status(500).json({ success: false, message: "Server error during update" });
+    }
+});
 
 export default router;
