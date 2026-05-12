@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
@@ -25,6 +26,17 @@ export const AdminDashboard = () => {
     ];
 
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
+    // Added Logout Handler
+    const handleLogout = async () => {
+        try {
+            await axios.post("http://localhost:3000/api/auth/logout");
+            toast.success("Logged out successfully");
+            window.location.href = "/"; // Redirect to home or login page
+        } catch (error) {
+            toast.error("⚠️ Failed to logout");
+        }
+    };
 
     const SidebarContent = () => (
         <>
@@ -61,13 +73,25 @@ export const AdminDashboard = () => {
 
             <div className="p-6 border-t border-white/5">
                 <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#2DD4BF] flex items-center justify-center text-[#080C1C] font-bold text-xs uppercase">
+                    <div className="w-8 h-8 rounded-full bg-[#2DD4BF] shrink-0 flex items-center justify-center text-[#080C1C] font-bold text-xs uppercase">
                         {user?.username?.charAt(0)}
                     </div>
-                    <div className="truncate">
+                    <div className="truncate flex-1">
                         <p className="text-xs font-bold truncate text-white">{user?.username || "Admin"}</p>
                         <p className="text-[10px] text-white/30 tracking-widest uppercase font-black leading-none mt-1">Root Access</p>
                     </div>
+                    {/* Added Logout Button */}
+                    <button 
+                        onClick={handleLogout} 
+                        className="text-white/40 hover:text-red-400 transition-colors p-1"
+                        title="Logout"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </>
