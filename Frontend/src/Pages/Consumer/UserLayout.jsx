@@ -119,6 +119,11 @@ const handleLogout = async () => {
             <NavLink to="/user/reviews" className={navClass} onClick={() => setSidebarOpen(false)}>
               <span className="text-lg">⭐</span> My Reviews
             </NavLink>
+             
+                  <NavLink to="/user/support" className={navClass} onClick={() => setSidebarOpen(false)}>
+                    <span className="flex items-center gap-3">👥 Support</span>
+                  </NavLink>
+                
             <NavLink to="/user/profile" className={navClass} onClick={() => setSidebarOpen(false)}>
               <span className="text-lg">👤</span> Profile Settings
             </NavLink>

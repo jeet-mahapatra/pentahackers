@@ -154,34 +154,6 @@ const markAppointmentCompleted = async (req, res) => {
 };
 
 
-// ==========================
-// GET NEW APPOINTMENTS
-// ==========================
-// const getNewAppointments = async (req, res) => {
-//   try {
-//     const providerId = req.user.id;
-
-//     const appointments = await Appointment.find({
-//       serviceProvider: providerId,
-//       status: "new",
-//     })
-//       .populate("serviceUser", "username email")
-//       .populate("serviceProvider", "username email")
-//       .sort({ createdAt: -1 });
-
-//     return res.json({
-//       success: true,
-//       total: appointments.length,
-//       appointments,
-//     });
-//   } catch (err) {
-//     return res.status(500).json({
-//       success: false,
-//       error: err.message,
-//     });
-//   }
-// };
-
 
 const getNewAppointments = async (req, res) => {
   try {

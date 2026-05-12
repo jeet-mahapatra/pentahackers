@@ -1,8 +1,8 @@
 import express from "express";
-import { getProviderProfile } from "../Controlers/Provider.Profile.js";
-import { updateProviderProfile } from "../Controlers/Provider.Profile.js";
+import { getProviderProfile, updateProviderProfile } from "../Controlers/Provider.Profile.js";
 import { authMiddleware } from "../Middleware/Auth.Middleware.js";
-import {upload} from "../Middleware/Multer.js"
+import { upload } from "../Middleware/Multer.js"
+
 const router = express.Router();
 
 // GET PROFILE
@@ -15,6 +15,7 @@ router.put(
   upload.fields([
     { name: "idProof", maxCount: 1 },
     { name: "photoproof", maxCount: 1 },
+    { name: "certification", maxCount: 1 }, // 🔥 Added certification
   ]),
   updateProviderProfile
 );

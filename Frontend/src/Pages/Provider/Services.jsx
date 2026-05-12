@@ -1,8 +1,16 @@
-
 import { useContext, useState } from "react";
 import { UserContext } from "../../Context/UserContext";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+
+// Helper function to safely format the address object into a string
+const formatAddress = (addr) => {
+  if (!addr) return "Not provided";
+  if (typeof addr === "string") return addr;
+  // If it's an object, join the valid keys into a comma-separated string
+  const formatted = [addr.street, addr.city, addr.pincode].filter(Boolean).join(", ");
+  return formatted || "Not provided";
+};
 
 const MyServices = () => {
   const { user, setUser } = useContext(UserContext);
@@ -99,8 +107,12 @@ const MyServices = () => {
           </div>
           <div className="flex justify-between items-center text-sm">
             <span className="text-white/40 font-medium">Address</span>
-            <span className="text-white/90 font-semibold text-right max-w-[150px] truncate" title={user.address}>
-              {user.address || "Not provided"}
+            {/* 🔥 Apply formatAddress here to fix the React child error */}
+            <span 
+              className="text-white/90 font-semibold text-right max-w-[150px] truncate" 
+              title={formatAddress(user.address)}
+            >
+              {formatAddress(user.address)}
             </span>
           </div>
         </div>
@@ -181,7 +193,6 @@ const MyServices = () => {
         </div>
       </div>
 
-      {/* Optional: Add custom scrollbar styling globally or in your CSS */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;

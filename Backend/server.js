@@ -17,6 +17,9 @@ import conciergeRoutes from "./router/concierge.routes.js";
 // USER DASHDORD 
 import UserDashboardDetails from "./router/UserAppointment.Router.js"
 
+// USER PROFILE UPDATE 
+import userProfileRoutes from "./router/Userprofile.routes.js";
+
 // ── NEW: Chat imports ──────────────────────────────────────────
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -55,6 +58,8 @@ app.use("/api/auth", logoutRouter);
 app.use("/api/chat", chatRouter);
 // ──────────────────────────────────────────────────────────────
 
+// USER PROFILE UPDATE
+app.use("/api/userProfile", userProfileRoutes);
 app.get('/', (req, res)=>{
     res.send("Hello World.");
 })
