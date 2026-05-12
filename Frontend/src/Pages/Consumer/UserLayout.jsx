@@ -11,15 +11,30 @@ export const UserLayout = () => {
   const { user, setUser } = useContext(UserContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleLogout = async () => {
-    try {
-      await axios.post("http://localhost:3000/api/auth/logout");
-    } catch (err) {
-      console.log(err.message);
+const handleLogout = async () => {
+  try {
+
+    const res = await axios.post(
+      "http://localhost:3000/api/auth/logout",
+      {},
+      {
+        withCredentials: true,
+      }
+    );
+
+    if (res.data.success) {
+
+      localStorage.removeItem("user");
+
+      setUser(null);
+
+      navigate("/login");
     }
-    setUser(null);
-    navigate("/login");
-  };
+
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const navClass = ({ isActive }) =>
     `flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-500 text-sm font-bold tracking-tight ${isActive
@@ -110,15 +125,6 @@ export const UserLayout = () => {
           </nav>
         </div>
 
-        {/* LOGOUT */}
-        <div className="pt-6 border-t border-white/5">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-5 py-3 rounded-2xl text-red-400 font-bold text-sm hover:bg-red-500/10 transition-all group"
-          >
-            <span className="group-hover:rotate-12 transition-transform">🚪</span> Sign Out
-          </button>
-        </div>
       </aside>
 
       {/* MAIN SECTION */}

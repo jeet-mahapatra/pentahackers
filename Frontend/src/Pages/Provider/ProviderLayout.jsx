@@ -40,16 +40,30 @@ const ProviderLayout = () => {
   }, [user]);
 
   // ================= LOGOUT =================
-  const handleLogout = async () => {
-    try {
-      await axios.post("http://localhost:3000/api/auth/logout");
-    } catch (err) {
-      console.log(err.message);
+const handleLogout = async () => {
+  try {
+
+    const res = await axios.post(
+      "http://localhost:3000/api/auth/logout",
+      {},
+      {
+        withCredentials: true,
+      }
+    );
+
+    if (res.data.success) {
+
+      localStorage.removeItem("user");
+
+      setUser(null);
+
+      navigate("/login");
     }
 
-    setUser(null);
-    navigate("/login");
-  };
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   // ================= ROLE =================
   const isProvider = useMemo(() => {

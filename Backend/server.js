@@ -25,7 +25,8 @@ import { Message } from "./model/Message.model.js";
 import {Appointment} from "./model/Appiontment.model.js"
 import chatRouter from "./router/chat.router.js";
 // ──────────────────────────────────────────────────────────────
-
+//LOGOUT
+import logoutRouter from "./router/logoutRoutes.js";
 // connect mongodb
 connectToMongo();
 
@@ -49,7 +50,7 @@ app.use("/api/user",UserDashboardDetails)
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/concierge", conciergeRoutes);
-
+app.use("/api/auth", logoutRouter);
 // ── NEW: Chat REST routes ──────────────────────────────────────
 app.use("/api/chat", chatRouter);
 // ──────────────────────────────────────────────────────────────
