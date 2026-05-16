@@ -1,6 +1,6 @@
 import express from "express";
 import { check, validationResult } from "express-validator";
-import ConciergeRequest from "../model/ConciergeRequest.model.js";
+import ConciergeRequest from "../model/Conciergerequest.model.js";
 import { authMiddleware } from "../Middleware/Auth.Middleware.js"; // your existing JWT middleware
 import { adminMiddleware } from "../Middleware/Admin.Middleware.js"; // your existing admin check
 import { sendNotificationEmail } from "../utils/emailService.js"; // hypothetical email utility
