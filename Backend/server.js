@@ -36,7 +36,10 @@ connectToMongo();
 const app = express();
 app.use(express.json({limit:"30kb"}))
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "https://easyfind-6ztw.onrender.com"
+  ],
   credentials: true
 }));
 app.use(cookieParser());
@@ -69,7 +72,10 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://easyfind-6ztw.onrender.com"
+    ],
     credentials: true,
   },
 });
