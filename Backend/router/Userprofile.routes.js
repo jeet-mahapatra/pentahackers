@@ -1,6 +1,6 @@
 import express from "express";
 import { getUserProfile, updateUserProfile } from "../Controlers/Userprofile.controler.js";
-import { authMiddleware } from "../middleware/Auth.Middleware.js"; // ← adjust path to your auth middleware
+import { authMiddleware } from "../Middleware/Auth.Middleware.js"; 
 
 const router = express.Router();
 
