@@ -54,7 +54,7 @@ const InputField = ({ label, error, children }) => (
 const inputCls =
     'w-full bg-white/[0.02] border border-white/[0.08] rounded-2xl px-5 py-3.5 text-white placeholder-white/30 outline-none focus:border-[#2DD4BF]/50 focus:bg-white/[0.05] transition-all duration-300 text-[14px] font-medium shadow-[0_4px_20px_rgba(0,0,0,0.1)]';
 
-const ConciergeModal = ({ isOpen, onClose }) => {
+const conciergeModal = ({ isOpen, onClose }) => {
     const { user } = useContext(UserContext);
 
     const [form, setForm] = useState({
