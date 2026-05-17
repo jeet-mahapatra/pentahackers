@@ -14,7 +14,7 @@ const formatAddress = (addr) => {
 const getFileUrl = (path) => {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  return `http://localhost:3000/${path.replace(/^\/+/, '')}`;
+  return `${import.meta.env.VITE_BACKEND}/${path.replace(/^\/+/, '')}`;
 };
 
 const initForm = (data) => ({

@@ -192,7 +192,7 @@ export const ProviderRegister = () => {
       if (isProfessional && files.certification) data.append("certification", files.certification);
       data.append("isProfessional", isProfessional);
 
-      await axios.post("http://localhost:3000/api/auth/register/provider", data, {
+      await axios.post(`${import.meta.env.VITE_BACKEND}/api/auth/register/provider`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

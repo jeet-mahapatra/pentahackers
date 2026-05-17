@@ -10,7 +10,7 @@ export const UserReviews = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/reviews/providers");
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND}/api/reviews/providers`);
       if (res.data.success) setData(res.data.data);
     } catch (err) {
       console.error("fetch error:", err);
@@ -23,7 +23,7 @@ export const UserReviews = () => {
 
   const submitReview = async () => {
     try {
-      await axios.post("http://localhost:3000/api/reviews", {
+      await axios.post(`${import.meta.env.VITE_BACKEND}/api/reviews`, {
         serviceProvider: selected.provider._id,
         appointment: selected.appointment._id,
         rating,

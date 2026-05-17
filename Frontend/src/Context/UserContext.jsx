@@ -3,7 +3,7 @@ import axios from "axios";
 
 export const UserContext = createContext();
 
-axios.defaults.baseURL = "http://localhost:3000";
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND;
 axios.defaults.withCredentials = true;
 
 export const UserProvider = ({ children }) => {

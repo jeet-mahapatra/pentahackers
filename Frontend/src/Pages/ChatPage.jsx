@@ -5,8 +5,9 @@ import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { UserContext } from "../Context/UserContext";
 
-const SOCKET_URL = "http://localhost:3000";
-const API_URL    = "http://localhost:3000/api";
+const SOCKET_URL = import.meta.env.VITE_BACKEND;
+
+const API_URL = `${import.meta.env.VITE_BACKEND}/api`;
 
 /* ─── Utilities ──────────────────────────────────────────────── */
 const formatTime = (d) =>

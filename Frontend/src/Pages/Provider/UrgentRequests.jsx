@@ -12,7 +12,7 @@ const UrgentRequests = () => {
   const fetchUrgent = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3000/api/appointments/urgent",
+        `${import.meta.env.VITE_BACKEND}/api/appointments/urgent`,
         { withCredentials: true }
       );
       setRequests(res.data.appointments || []);
@@ -30,7 +30,7 @@ const UrgentRequests = () => {
   const handleAccept = async (id) => {
     try {
       await axios.patch(
-        `http://localhost:3000/api/appointments/accept/${id}`,
+        `${import.meta.env.VITE_BACKEND}/api/appointments/accept/${id}`,
         {},
         { withCredentials: true }
       );
@@ -43,7 +43,7 @@ const UrgentRequests = () => {
   const handleCancel = async (id) => {
     try {
       await axios.patch(
-        `http://localhost:3000/api/appointments/cancel/${id}`,
+        `${import.meta.env.VITE_BACKEND}/api/appointments/cancel/${id}`,
         {},
         { withCredentials: true }
       );

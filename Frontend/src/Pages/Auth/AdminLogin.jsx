@@ -21,7 +21,7 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:3000/api/auth/admin-login", {
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND}/api/auth/admin-login`, {
         email,
         password,
       });

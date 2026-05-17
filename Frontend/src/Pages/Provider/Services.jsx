@@ -23,7 +23,7 @@ const MyServices = () => {
     try {
       setLoading(true);
       const res = await axios.post(
-        "http://localhost:3000/api/myservice/slots/add",
+        `${import.meta.env.VITE_BACKEND}/api/myservice/slots/add`,
         { slot: newSlot }
       );
 
@@ -43,7 +43,7 @@ const MyServices = () => {
   const removeSlot = async (slot) => {
     try {
       const res = await axios.delete(
-        "http://localhost:3000/api/myservice/slots/remove",
+        `${import.meta.env.VITE_BACKEND}/api/myservice/slots/remove`,
         { data: { slot } }
       );
 
@@ -51,8 +51,8 @@ const MyServices = () => {
         ...prev,
         timeSlots: res.data.data.timeSlots,
       }));
-    } catch {
-      alert("Error removing slot");
+    } catch (err) {
+      alert(err.response?.data?.message || "Error removing slot");
     }
   };
 

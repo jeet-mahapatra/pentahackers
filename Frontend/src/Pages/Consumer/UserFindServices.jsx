@@ -25,7 +25,7 @@ export const UserFindServices = () => {
     const fetchProviders = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("/api/providerProfile/approved", {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND}/api/providerProfile/approved`, {
           params: { search: debouncedSearch },
         });
         const sorted = res.data.providers.sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
@@ -41,7 +41,7 @@ export const UserFindServices = () => {
 
   const handleBooking = async () => {
     try {
-      await axios.post("/api/appointments/create", {
+      await axios.post(`${import.meta.env.VITE_BACKEND}/api/appointments/create`, {
         serviceProviderId: selectedProvider._id,
         requestType: selectedProvider.serviceType,
         appointmentDate: form.appointmentDate,

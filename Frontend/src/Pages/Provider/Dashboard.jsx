@@ -62,7 +62,7 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/appointments/stats", { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND}/api/appointments/stats`, { withCredentials: true });
       setStats(res.data);
     } catch (err) {
       console.log("Stats error:", err.response?.data || err.message);
@@ -71,7 +71,7 @@ const Dashboard = () => {
 
   const fetchPending = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/appointments/pending", { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND}/api/appointments/pending`, { withCredentials: true });
       const sorted = (res.data.appointments || []).sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
       setPendingAppointments(sorted);
     } catch (err) {
@@ -83,7 +83,7 @@ const Dashboard = () => {
 
   const handleComplete = async (id) => {
     try {
-      await axios.patch(`http://localhost:3000/api/appointments/complete/${id}`, {}, { withCredentials: true });
+      await axios.patch(`${import.meta.env.VITE_BACKEND}/api/appointments/complete/${id}`, {}, { withCredentials: true });
       setPendingAppointments((prev) => prev.filter((item) => item._id !== id));
       fetchStats();
     } catch (err) {

@@ -17,7 +17,7 @@ export const UserRegister = () => {
     setLoading(true);
     setError("");
     try {
-      await axios.post("http://localhost:3000/api/auth/register/user", formData);
+      await axios.post(`${import.meta.env.VITE_BACKEND}/api/auth/register/user`, formData);
       
       toast.success("Registration successful! Redirecting to login...");
       navigate("/login");

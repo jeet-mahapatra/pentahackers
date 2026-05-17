@@ -22,8 +22,8 @@ const ProviderLayout = () => {
   const fetchCounts = async () => {
     try {
       const [newRes, urgentRes] = await Promise.all([
-        axios.get("http://localhost:3000/api/appointments/new"),
-        axios.get("http://localhost:3000/api/appointments/urgent"),
+        axios.get(`${import.meta.env.VITE_BACKEND}/api/appointments/new`),
+        axios.get(`${import.meta.env.VITE_BACKEND}/api/appointments/urgent`),
       ]);
 
       setCounts({
@@ -44,7 +44,7 @@ const handleLogout = async () => {
   try {
 
     const res = await axios.post(
-      "http://localhost:3000/api/auth/logout",
+      `${import.meta.env.VITE_BACKEND}/api/auth/logout`,
       {},
       {
         withCredentials: true,

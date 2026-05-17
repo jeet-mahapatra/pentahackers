@@ -12,7 +12,7 @@ const Appointments = () => {
   const fetchAppointments = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3000/api/appointments/new",
+        `${import.meta.env.VITE_BACKEND}/api/appointments/new`,
         { withCredentials: true }
       );
       setAppointments(res.data.appointments);
@@ -26,7 +26,7 @@ const Appointments = () => {
   const handleAccept = async (id) => {
     try {
       await axios.patch(
-        `http://localhost:3000/api/appointments/accept/${id}`,
+        `${import.meta.env.VITE_BACKEND}/api/appointments/accept/${id}`,
         {},
         { withCredentials: true }
       );
@@ -39,7 +39,7 @@ const Appointments = () => {
   const handleCancel = async (id) => {
     try {
       await axios.patch(
-        `http://localhost:3000/api/appointments/cancel/${id}`,
+        `${import.meta.env.VITE_BACKEND}/api/appointments/cancel/${id}`,
         {},
         { withCredentials: true }
       );

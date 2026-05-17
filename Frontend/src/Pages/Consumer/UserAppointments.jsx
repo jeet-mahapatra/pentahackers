@@ -9,7 +9,7 @@ const AppointmentList = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/user/appointment/list");
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND}/api/user/appointment/list`);
         if (res.data.success) {
           const sorted = res.data.data.sort((a, b) => new Date(b.appointmentDate || 0) - new Date(a.appointmentDate || 0));
           setAppointments(sorted);

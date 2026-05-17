@@ -22,7 +22,7 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/user/dashboard");
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND}/api/user/dashboard`);
         if (res.data.success) {
           setStats(res.data.data);
         }
