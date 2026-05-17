@@ -1,10 +1,11 @@
 import React, { useState, useContext } from 'react';
 import { motion } from 'framer-motion';
 import { Search, X } from 'lucide-react';
-import ContactChannels from './ContactChannels';
-import FAQ from './FAQ';
 
-import ConciergeModal from "./ConciergeModal";
+import ContactChannels from './ContactChannels';
+
+import FAQ from './FAQ';
+// import ConciergeModal from "./ConciergeModal";
 import { UserContext } from "../../Context/UserContext";
 
 const Support = () => {
