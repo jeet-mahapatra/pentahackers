@@ -2,7 +2,7 @@ import express from "express";
 import {getChatHistory} from "../Controlers/chat.controller.js"
 import { checkChatAccess } from "../Controlers/chat.controller.js";
 import { getMyConversations } from "../Controlers/chat.controller.js";
-import { authMiddleware } from "../Middleware/auth.middleware.js";
+import { authMiddleware } from "../Middleware/Auth.Middleware.js";
 
 const router = express.Router();
 
