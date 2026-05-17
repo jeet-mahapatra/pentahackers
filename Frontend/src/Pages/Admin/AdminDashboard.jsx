@@ -10,7 +10,7 @@ import ProvidersTab from "./ProvidersTab";
 import UsersTab from "./UsersTab";
 
 axios.defaults.withCredentials = true;
-const API_BASE = "http://localhost:3000/api/admin";
+const API_BASE = `${import.meta.env.VITE_BACKEND}/api/admin`;
 
 export const AdminDashboard = () => {
     const { user } = useContext(UserContext);
@@ -30,7 +30,7 @@ export const AdminDashboard = () => {
     // Added Logout Handler
     const handleLogout = async () => {
         try {
-            await axios.post("http://localhost:3000/api/auth/logout");
+            await axios.post(`${import.meta.env.VITE_BACKEND}/api/auth/logout`);
             toast.success("Logged out successfully");
             window.location.href = "/"; // Redirect to home or login page
         } catch (error) {

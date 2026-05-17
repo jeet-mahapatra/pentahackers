@@ -1,6 +1,6 @@
 import express from 'express';
 import 'dotenv/config';
-import cors from "cors"; 
+import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectToMongo from './config/db.js';
 import authRouter from './router/auth.js';
@@ -25,7 +25,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import { Message } from "./model/Message.model.js";
-import {Appointment} from "./model/Appiontment.model.js"
+import { Appointment } from "./model/Appiontment.model.js"
 import chatRouter from "./router/chat.router.js";
 // ──────────────────────────────────────────────────────────────
 //LOGOUT
@@ -34,25 +34,25 @@ import logoutRouter from "./router/logoutRoutes.js";
 connectToMongo();
 
 const app = express();
-app.use(express.json({limit:"30kb"}))
+app.use(express.json({ limit: "30kb" }))
 app.use(cors({
   origin: [
-    "http://localhost:5173",
-    "https://easyfind-6ztw.onrender.com"
+    process.env.FRONTEND_URL,
+    process.env.BACKEND_URL
   ],
   credentials: true
 }));
 app.use(cookieParser());
 
-const PORT = process.env.PORT ;
+const PORT = process.env.PORT;
 
 app.use('/api/auth', authRouter);
-app.use("/api/appointments",appointmentRoutes)
+app.use("/api/appointments", appointmentRoutes)
 app.use("/api/context", profileContext);
 app.use("/api/myservice", ProviderMyService);
-app.use("/api/providerProfile",ProviderProfile)
-app.use("/api/providerProfile",VerifyedProvidorForRequest)
-app.use("/api/user",UserDashboardDetails)
+app.use("/api/providerProfile", ProviderProfile)
+app.use("/api/providerProfile", VerifyedProvidorForRequest)
+app.use("/api/user", UserDashboardDetails)
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/concierge", conciergeRoutes);
@@ -63,8 +63,8 @@ app.use("/api/chat", chatRouter);
 
 // USER PROFILE UPDATE
 app.use("/api/userProfile", userProfileRoutes);
-app.get('/', (req, res)=>{
-    res.send("Hello World.");
+app.get('/', (req, res) => {
+  res.send("Hello World.");
 })
 
 // ── NEW: HTTP server + Socket.io setup ────────────────────────
@@ -73,8 +73,8 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: [
-      "http://localhost:5173",
-      "https://easyfind-6ztw.onrender.com"
+      process.env.FRONTEND_URL,
+      process.env.BACKEND_URL
     ],
     credentials: true,
   },
@@ -112,104 +112,104 @@ io.on("connection", (socket) => {
   // ── JOIN ROOM ────────────────────────────────────────────────
   // Client emits join_room with appointmentId
   socket.on("join_room", async ({ appointmentId }) => {
-  try {
-    const appointment = await Appointment.findById(appointmentId);
+    try {
+      const appointment = await Appointment.findById(appointmentId);
 
-    if (!appointment) {
-      return socket.emit("error", { message: "Appointment not found" });
+      if (!appointment) {
+        return socket.emit("error", { message: "Appointment not found" });
+      }
+
+      // ✅ FIXED: allow pending + completed
+      const allowedStatuses = ["pending", "completed"];
+
+      if (!allowedStatuses.includes(appointment.status)) {
+        return socket.emit("error", {
+          message: "Chat not allowed for this appointment",
+        });
+      }
+
+      const userId = socket.user.id;
+      const userRole = socket.user.role;
+
+      const isUser =
+        userRole === "user" &&
+        appointment.serviceUser.toString() === userId.toString();
+
+      const isProvider =
+        (userRole === "approved_provider" ||
+          userRole === "pending_provider") &&
+        appointment.serviceProvider.toString() === userId.toString();
+
+      if (!isUser && !isProvider) {
+        return socket.emit("error", {
+          message: "Not authorized for this chat room",
+        });
+      }
+
+      socket.join(appointmentId);
+      socket.emit("joined_room", { appointmentId });
+    } catch (err) {
+      socket.emit("error", { message: "Failed to join room" });
     }
-
-    // ✅ FIXED: allow pending + completed
-    const allowedStatuses = ["pending", "completed"];
-
-    if (!allowedStatuses.includes(appointment.status)) {
-      return socket.emit("error", {
-        message: "Chat not allowed for this appointment",
-      });
-    }
-
-    const userId = socket.user.id;
-    const userRole = socket.user.role;
-
-    const isUser =
-      userRole === "user" &&
-      appointment.serviceUser.toString() === userId.toString();
-
-    const isProvider =
-      (userRole === "approved_provider" ||
-        userRole === "pending_provider") &&
-      appointment.serviceProvider.toString() === userId.toString();
-
-    if (!isUser && !isProvider) {
-      return socket.emit("error", {
-        message: "Not authorized for this chat room",
-      });
-    }
-
-    socket.join(appointmentId);
-    socket.emit("joined_room", { appointmentId });
-  } catch (err) {
-    socket.emit("error", { message: "Failed to join room" });
-  }
-});
+  });
 
   socket.on("send_message", async ({ appointmentId, message }) => {
-  try {
-    if (!message || !message.trim()) return;
+    try {
+      if (!message || !message.trim()) return;
 
-    const appointment = await Appointment.findById(appointmentId);
+      const appointment = await Appointment.findById(appointmentId);
 
-    // ✅ FIXED: allow pending + completed
-    const allowedStatuses = ["pending", "completed"];
+      // ✅ FIXED: allow pending + completed
+      const allowedStatuses = ["pending", "completed"];
 
-    if (!appointment || !allowedStatuses.includes(appointment.status)) {
-      return socket.emit("error", { message: "Chat not allowed" });
+      if (!appointment || !allowedStatuses.includes(appointment.status)) {
+        return socket.emit("error", { message: "Chat not allowed" });
+      }
+
+      const senderId = socket.user.id;
+      const senderRole = socket.user.role;
+
+      const isUser = senderRole === "user";
+      const senderType = isUser ? "user" : "provider";
+
+      const receiverId = isUser
+        ? appointment.serviceProvider
+        : appointment.serviceUser;
+
+      const receiverType = isUser ? "provider" : "user";
+
+      const validSender = isUser
+        ? appointment.serviceUser.toString() === senderId.toString()
+        : appointment.serviceProvider.toString() === senderId.toString();
+
+      if (!validSender) {
+        return socket.emit("error", { message: "Not authorized" });
+      }
+
+      const newMessage = await Message.create({
+        appointmentId,
+        senderId,
+        senderType,
+        receiverId,
+        receiverType,
+        message: message.trim(),
+      });
+
+      io.to(appointmentId).emit("receive_message", {
+        _id: newMessage._id,
+        appointmentId,
+        senderId,
+        senderType,
+        receiverId,
+        receiverType,
+        message: newMessage.message,
+        isRead: newMessage.isRead,
+        createdAt: newMessage.createdAt,
+      });
+    } catch (err) {
+      socket.emit("error", { message: "Failed to send message" });
     }
-
-    const senderId = socket.user.id;
-    const senderRole = socket.user.role;
-
-    const isUser = senderRole === "user";
-    const senderType = isUser ? "user" : "provider";
-
-    const receiverId = isUser
-      ? appointment.serviceProvider
-      : appointment.serviceUser;
-
-    const receiverType = isUser ? "provider" : "user";
-
-    const validSender = isUser
-      ? appointment.serviceUser.toString() === senderId.toString()
-      : appointment.serviceProvider.toString() === senderId.toString();
-
-    if (!validSender) {
-      return socket.emit("error", { message: "Not authorized" });
-    }
-
-    const newMessage = await Message.create({
-      appointmentId,
-      senderId,
-      senderType,
-      receiverId,
-      receiverType,
-      message: message.trim(),
-    });
-
-    io.to(appointmentId).emit("receive_message", {
-      _id: newMessage._id,
-      appointmentId,
-      senderId,
-      senderType,
-      receiverId,
-      receiverType,
-      message: newMessage.message,
-      isRead: newMessage.isRead,
-      createdAt: newMessage.createdAt,
-    });
-  } catch (err) {
-    socket.emit("error", { message: "Failed to send message" });
-  }
-});
+  });
 
   // ── TYPING INDICATOR ─────────────────────────────────────────
   socket.on("typing", ({ appointmentId }) => {
