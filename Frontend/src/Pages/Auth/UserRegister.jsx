@@ -18,7 +18,6 @@ export const UserRegister = () => {
     setError("");
     try {
       await axios.post(`${import.meta.env.VITE_BACKEND}/api/auth/register/user`, formData);
-      
       toast.success("Registration successful! Redirecting to login...");
       navigate("/login");
     } catch (err) {
@@ -30,34 +29,35 @@ export const UserRegister = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#080C1C] text-white relative overflow-hidden py-12">
+    <div className="min-h-screen flex items-center justify-center bg-[#080C1C] text-white relative overflow-hidden px-4 py-12">
       {/* Background Orbs */}
-      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#2DD4BF]/10 rounded-full blur-[120px]" />
-      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[#F59E0B]/10 rounded-full blur-[120px]" />
+      <div className="absolute top-1/4 -left-20 w-72 sm:w-96 h-72 sm:h-96 bg-[#2DD4BF]/10 rounded-full blur-[100px] sm:blur-[120px]" />
+      <div className="absolute bottom-1/4 -right-20 w-72 sm:w-96 h-72 sm:h-96 bg-[#F59E0B]/10 rounded-full blur-[100px] sm:blur-[120px]" />
 
-      <Link to="/" className="absolute top-11 left-11 text-[#2DD4BF] font-bold text-lg z-10">
-        ← Back to Dashboard
+      <Link to="/" className="absolute top-6 left-6 md:top-11 md:left-11 text-[#2DD4BF] font-bold text-sm md:text-lg z-10 hover:text-[#2dd4bf]/80 transition-colors">
+        ← Back to Home
       </Link>
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-[480px] px-6 relative z-10"
+        className="w-full max-w-[480px] relative z-10 mt-6"
       >
-        <div className="bg-[#0D1226]/40 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-10 shadow-2xl">
-          <div className="text-center mb-10">
+        <div className="bg-[#0D1226]/40 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 sm:p-10 shadow-2xl">
+          <div className="text-center mb-8">
             <span className="text-[#2DD4BF] text-xs font-bold tracking-[0.2em] uppercase">Get Started</span>
-            <h2 className="text-4xl font-bold font-serif mt-2">Create Account</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold font-serif mt-2">Create Account</h2>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 gap-4">
               <input
                 name="name"
+                type="text"
                 placeholder="Full Name"
                 onChange={handleChange}
                 required
-                className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#2DD4BF]/50 focus:bg-white/10 transition-all"
+                className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#2DD4BF]/50 focus:bg-white/10 transition-all text-sm"
               />
               <input
                 name="email"
@@ -65,7 +65,7 @@ export const UserRegister = () => {
                 placeholder="Email address"
                 onChange={handleChange}
                 required
-                className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#2DD4BF]/50 focus:bg-white/10 transition-all"
+                className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#2DD4BF]/50 focus:bg-white/10 transition-all text-sm"
               />
               <input
                 name="password"
@@ -73,26 +73,26 @@ export const UserRegister = () => {
                 placeholder="Create password"
                 onChange={handleChange}
                 required
-                className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#2DD4BF]/50 focus:bg-white/10 transition-all"
+                className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-[#2DD4BF]/50 focus:bg-white/10 transition-all text-sm"
               />
             </div>
 
-            {error && <p className="text-[#FB923C] text-xs text-center">{error}</p>}
+            {error && <p className="text-[#FB923C] text-xs text-center font-semibold">{error}</p>}
 
             <motion.button
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="w-full py-4 mt-4 bg-gradient-to-r from-[#2DD4BF] to-[#F59E0B] text-[#080C1C] font-bold rounded-2xl shadow-xl shadow-[#2DD4BF]/10 disabled:opacity-50"
+              className="w-full py-4 mt-2 bg-gradient-to-r from-[#2DD4BF] to-[#F59E0B] text-[#080C1C] font-bold rounded-2xl shadow-xl shadow-[#2DD4BF]/10 disabled:opacity-50 text-sm cursor-pointer"
             >
               {loading ? "Processing..." : "Create Free Account →"}
             </motion.button>
           </form>
 
-          <p className="text-center mt-8 text-sm text-white/30 font-medium">
+          <p className="text-center mt-8 text-xs sm:text-sm text-white/30 font-medium">
             Already have an account?{" "}
-            <Link to="/login" className="text-[#2DD4BF] hover:underline underline-offset-4">
+            <Link to="/login" className="text-[#2DD4BF] hover:underline underline-offset-4 font-bold">
               Sign in here
             </Link>
           </p>

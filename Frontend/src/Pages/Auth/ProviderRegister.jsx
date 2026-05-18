@@ -143,12 +143,11 @@ export const ProviderRegister = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
-    setErrors(e => ({ ...e, [name]: "" })); // 'e' is also shadowed here!
+    setErrors(prev => ({ ...prev, [name]: "" }));
   };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-
     setFiles(f => ({ ...f, [name]: files[0] }));
     setErrors(prevErrors => ({ ...prevErrors, [name]: "" }));
   };
@@ -267,7 +266,7 @@ export const ProviderRegister = () => {
           {EXPERIENCE_OPTIONS.map(({ value, label }) => (
             <button key={value} type="button"
               onClick={() => { setForm(f => ({ ...f, experience: value })); setErrors(e => ({ ...e, experience: "" })); }}
-              className={`py-2 px-2 rounded-xl text-[11px] font-bold tracking-wide border transition-all duration-200
+              className={`py-2 px-2 rounded-xl text-[11px] font-bold tracking-wide border transition-all duration-200 cursor-pointer
                 ${form.experience === value
                   ? "bg-teal-500/15 border-teal-500/40 text-teal-300"
                   : "bg-slate-900/40 border-slate-700/40 text-slate-500 hover:border-slate-600 hover:text-slate-300"}`}>
@@ -389,8 +388,8 @@ export const ProviderRegister = () => {
     <div className="min-h-screen flex items-center justify-center px-4 py-10 relative overflow-hidden"
       style={{ background: "rgb(8, 12, 28)" }}>
 
-      <Link to="/" className="absolute top-11 left-11 text-[#2DD4BF] font-bold text-lg z-10">
-        ← Back to Dashboard
+      <Link to="/" className="absolute top-6 left-6 md:top-11 md:left-11 text-[#2DD4BF] font-bold text-sm md:text-lg z-10">
+        ← Back to Home
       </Link>
 
       {/* Grid texture */}
@@ -405,7 +404,7 @@ export const ProviderRegister = () => {
 
       <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, ease: "easeOut" }}
-        className="w-full max-w-[500px] relative z-10">
+        className="w-full max-w-[500px] relative z-10 mt-8">
 
         {/* Header */}
         <div className="text-center mb-7">
@@ -415,18 +414,18 @@ export const ProviderRegister = () => {
             <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
             <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-teal-400/65">Provider Network</span>
           </motion.div>
-          <h1 className="text-[26px] font-black tracking-tight text-white mb-1"
+          <h1 className="text-2xl sm:text-[26px] font-black tracking-tight text-white mb-1"
             style={{ fontFamily: "'Georgia', serif" }}>
             Join as a Provider
           </h1>
-          <p className="text-sm text-slate-500">Complete all steps to get verified and start earning</p>
+          <p className="text-xs sm:text-sm text-slate-500">Complete all steps to get verified and start earning</p>
         </div>
 
         {/* Step tracker */}
-        <div className="flex items-center mb-5 px-1">
+        <div className="flex items-center mb-5 px-1 overflow-x-auto pb-2 scrollbar-none">
           {STEPS.map((s, i) => (
-            <div key={s.id} className="flex items-center flex-1">
-              <div className="flex flex-col items-center">
+            <div key={s.id} className="flex items-center flex-1 min-w-[70px]">
+              <div className="flex flex-col items-center mx-auto">
                 <motion.div animate={{
                   scale: i === step ? 1.08 : 1,
                   borderColor: i < step ? "#14b8a6" : i === step ? "#2dd4bf" : "#334155",
@@ -437,13 +436,13 @@ export const ProviderRegister = () => {
                     : <span className={i === step ? "text-teal-300" : "text-slate-600"}>{s.icon}</span>
                   }
                 </motion.div>
-                <span className={`text-[9px] mt-1 font-bold tracking-widest uppercase transition-colors
+                <span className={`text-[9px] mt-1 font-bold tracking-widest uppercase transition-colors whitespace-nowrap
                   ${i === step ? "text-teal-400" : i < step ? "text-teal-600/70" : "text-slate-700"}`}>
                   {s.label}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className="flex-1 mx-2 h-[1px] mb-4 relative overflow-hidden bg-slate-800/80">
+                <div className="flex-1 mx-2 h-[1px] mb-4 relative overflow-hidden bg-slate-800/80 min-w-[15px]">
                   <motion.div className="absolute inset-y-0 left-0"
                     animate={{ width: i < step ? "100%" : "0%" }}
                     transition={{ duration: 0.4, ease: "easeInOut" }}
@@ -469,14 +468,14 @@ export const ProviderRegister = () => {
               style={{ background: "linear-gradient(90deg, #0d9488, #14b8a6, #5eead4)" }} />
           </div>
 
-          <div className="p-6 sm:p-8">
+          <div className="p-5 sm:p-8">
             {/* Step header */}
             <div className="flex items-center justify-between mb-5">
               <div>
                 <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-700">
                   Step {step + 1} of {STEPS.length}
                 </p>
-                <p className="text-[15px] font-bold text-slate-200 mt-0.5">
+                <p className="text-[14px] sm:text-[15px] font-bold text-slate-200 mt-0.5">
                   {STEPS[step].icon} {STEPS[step].label}
                 </p>
               </div>
@@ -507,14 +506,14 @@ export const ProviderRegister = () => {
               {step > 0 && (
                 <motion.button onClick={prev} whileTap={{ scale: 0.96 }} disabled={loading}
                   className="px-5 py-3 rounded-xl border border-slate-700/40 text-slate-400 text-sm font-semibold
-                    hover:border-slate-600 hover:text-slate-300 transition-all duration-200 disabled:opacity-40">
+                    hover:border-slate-600 hover:text-slate-300 transition-all duration-200 disabled:opacity-40 cursor-pointer">
                   ← Back
                 </motion.button>
               )}
 
               {step < STEPS.length - 1 ? (
                 <motion.button onClick={next} whileTap={{ scale: 0.98 }}
-                  className="flex-1 py-3 rounded-xl text-sm font-bold tracking-wide text-slate-900 relative overflow-hidden group"
+                  className="flex-1 py-3 rounded-xl text-sm font-bold tracking-wide text-slate-900 relative overflow-hidden group cursor-pointer"
                   style={{ background: "linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)" }}>
                   <span className="relative z-10">Continue →</span>
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-250"
@@ -522,7 +521,7 @@ export const ProviderRegister = () => {
                 </motion.button>
               ) : (
                 <motion.button onClick={handleSubmit} disabled={loading} whileTap={{ scale: 0.98 }}
-                  className="flex-1 py-3 rounded-xl text-sm font-bold tracking-wide text-slate-900 relative overflow-hidden group disabled:opacity-50"
+                  className="flex-1 py-3 rounded-xl text-sm font-bold tracking-wide text-slate-900 relative overflow-hidden group disabled:opacity-50 cursor-pointer"
                   style={{ background: "linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)" }}>
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
@@ -545,12 +544,12 @@ export const ProviderRegister = () => {
           </div>
         </div>
 
-        <p className="text-center mt-5 text-xs text-slate-600">
-          Already registered?{" "}
+        <div className="text-center mt-5 text-xs text-slate-600 flex flex-wrap justify-center gap-2 items-center">
+          <span>Already registered?</span>
           <Link to="/login" className="text-teal-400/70 hover:text-teal-300 transition-colors font-semibold">Sign in</Link>
-          <span className="mx-3 text-slate-800">|</span>
-          <Link to="/register" className="text-teal-400/70 hover:text-teal-300 transition-colors font-semibold">Register as User</Link>
-        </p>
+          <span className="text-slate-800">|</span>
+          <Link to="/register/user" className="text-teal-400/70 hover:text-teal-300 transition-colors font-semibold">Register as User</Link>
+        </div>
       </motion.div>
     </div>
   );

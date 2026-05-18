@@ -1,54 +1,3 @@
-
-// import { v2 as cloudinary } from 'cloudinary'
-// import fs from "fs"
-
-
-
-// cloudinary.config({ 
-//   cloud_name: process.env.cloud_name, 
-//   api_key: process.env.api_key, 
-//   api_secret: process.env.api_secret
-// });
-
-
-
-
-
-// const uploadOnCloudinary =async (LocalFilePath)=>{
-
-//     try{
-// if(!LocalFilePath){
-//     return null
-// }
-// else{
-//     const cloudinaryUrl=await cloudinary.uploader.upload(LocalFilePath,{
-//         resource_type:"auto",
-//     })
-//     console.log("File is Uploded Sucessfully",cloudinaryUrl.url)
-//       fs.unlinkSync(LocalFilePath)
-
-//     return cloudinaryUrl
-// }
-//     }catch(error){
-// if (LocalFilePath && fs.existsSync(LocalFilePath)) {
-//        fs.unlinkSync(LocalFilePath)
-//     }
-
-//     console.error("Cloudinary upload error:", error)
-//     return null
-//     }
-
-// }
-
-
-// export {uploadOnCloudinary }
-
-
-
-
-
-
-
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 
@@ -62,19 +11,28 @@ const uploadOnCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return null;
 
+    // Upload the file to cloudinary
     const result = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
     });
 
-    fs.unlinkSync(localFilePath);
+    // Safely remove the locally saved temporary file asynchronously
+    if (fs.existsSync(localFilePath)) {
+      fs.unlink(localFilePath, (err) => {
+        if (err) console.error(`Failed to delete local file: ${localFilePath}`, err);
+      });
+    }
 
     return result;
   } catch (error) {
+    // If upload fails, safely remove the local file if it exists
     if (localFilePath && fs.existsSync(localFilePath)) {
-      fs.unlinkSync(localFilePath);
+      fs.unlink(localFilePath, (err) => {
+        if (err) console.error(`Failed to clean up file: ${localFilePath}`, err);
+      });
     }
 
-    console.error("Cloudinary error:", error);
+    console.error("Cloudinary error detailed:", error);
     return null;
   }
 };

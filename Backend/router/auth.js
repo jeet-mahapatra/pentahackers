@@ -104,20 +104,30 @@ router.post(
         });
       }
 
-      // Upload to Cloudinary
-      const idProofUpload = await uploadOnCloudinary(idProofPath);
-      const photoProofUpload = await uploadOnCloudinary(photoProofPath);
+      const uploadPromises = [
+        uploadOnCloudinary(idProofPath),
+        uploadOnCloudinary(photoProofPath)
+      ];
 
+      // Only add certification upload if it's required and exists
+      if (isProfessional && certificationPath) {
+        uploadPromises.push(uploadOnCloudinary(certificationPath));
+      }
+
+      // Execute all uploads in parallel
+      const uploadResults = await Promise.all(uploadPromises);
+
+      const idProofUpload = uploadResults[0];
+      const photoProofUpload = uploadResults[1];
+      const certificationUpload = isProfessional && certificationPath ? uploadResults[2] : null;
+
+      // Check if essential uploads succeeded
       if (!idProofUpload || !photoProofUpload) {
         return res.status(500).json({ success: false, message: "File upload failed" });
       }
 
-      let certificationUpload = null;
-      if (isProfessional && certificationPath) {
-        certificationUpload = await uploadOnCloudinary(certificationPath);
-        if (!certificationUpload) {
-          return res.status(500).json({ success: false, message: "Certification upload failed" });
-        }
+      if (isProfessional && certificationPath && !certificationUpload) {
+        return res.status(500).json({ success: false, message: "Certification upload failed" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);

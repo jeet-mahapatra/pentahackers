@@ -1,6 +1,6 @@
-import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /* ─── Static data ─────────────────────────────────────── */
 const features = [
@@ -73,7 +73,6 @@ function Counter({ target }) {
 function AuroraMesh() {
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden", zIndex: 0, pointerEvents: "none" }}>
-      {/* Blob 1 — teal */}
       <motion.div
         animate={{ x: [0, 60, -30, 0], y: [0, -40, 60, 0], scale: [1, 1.15, 0.95, 1] }}
         transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
@@ -84,7 +83,6 @@ function AuroraMesh() {
           filter: "blur(60px)",
         }}
       />
-      {/* Blob 2 — amber */}
       <motion.div
         animate={{ x: [0, -80, 40, 0], y: [0, 60, -50, 0], scale: [1, 0.9, 1.2, 1] }}
         transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 3 }}
@@ -95,7 +93,6 @@ function AuroraMesh() {
           filter: "blur(70px)",
         }}
       />
-      {/* Blob 3 — emerald */}
       <motion.div
         animate={{ x: [0, 50, -60, 0], y: [0, 80, 20, 0], scale: [1, 1.1, 0.85, 1] }}
         transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 7 }}
@@ -106,7 +103,6 @@ function AuroraMesh() {
           filter: "blur(80px)",
         }}
       />
-      {/* Grid overlay */}
       <div style={{
         position: "absolute", inset: 0,
         backgroundImage: `
@@ -116,34 +112,6 @@ function AuroraMesh() {
         backgroundSize: "60px 60px",
       }} />
     </div>
-  );
-}
-
-/* ─── Magnetic cursor dot ────────────────────────────── */
-function MagneticCursor() {
-  const x = useMotionValue(-100);
-  const y = useMotionValue(-100);
-  const sx = useSpring(x, { stiffness: 120, damping: 18 });
-  const sy = useSpring(y, { stiffness: 120, damping: 18 });
-
-  useEffect(() => {
-    const move = (e) => { x.set(e.clientX - 8); y.set(e.clientY - 8); };
-    window.addEventListener("mousemove", move);
-    return () => window.removeEventListener("mousemove", move);
-  }, []);
-
-  return (
-    <motion.div
-      style={{
-        position: "fixed", width: 16, height: 16,
-        borderRadius: "50%",
-        background: "rgba(45,212,191,0.7)",
-        pointerEvents: "none", zIndex: 9999,
-        mixBlendMode: "screen",
-        left: sx, top: sy,
-        boxShadow: "0 0 20px rgba(45,212,191,0.6)",
-      }}
-    />
   );
 }
 
@@ -241,15 +209,12 @@ const Landing = () => {
       fontFamily: "'Cabinet Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif",
       overflowX: "hidden",
     }}>
-      <MagneticCursor />
-
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,700;9..144,800;9..144,900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
         ::selection { background: rgba(45,212,191,0.3); }
         a { text-decoration: none; color: inherit; }
-        body { cursor: none; }
 
         .nav-link {
           font-size: 14px;
@@ -271,7 +236,7 @@ const Landing = () => {
           background: linear-gradient(135deg, #2DD4BF, #0EA5E9);
           border-radius: 12px;
           font-size: 15px; font-weight: 600; color: #080C1C;
-          cursor: none; border: none;
+          cursor: pointer; border: none;
           transition: transform 0.25s, box-shadow 0.25s;
           letter-spacing: -0.01em;
           position: relative; overflow: hidden;
@@ -294,7 +259,7 @@ const Landing = () => {
           background: rgba(255,255,255,0.05);
           border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
           font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.8);
-          cursor: none;
+          cursor: pointer;
           transition: all 0.25s;
           letter-spacing: -0.01em;
           backdrop-filter: blur(8px);
@@ -314,7 +279,7 @@ const Landing = () => {
           transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
           position: relative;
           overflow: hidden;
-          cursor: none;
+          cursor: default;
         }
         .feature-card::before {
           content: '';
@@ -377,6 +342,27 @@ const Landing = () => {
           background-size: 200% 100%;
           animation: shimmer 3s linear infinite;
         }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+          .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .hero-right { display: none !important; }
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .steps-grid { grid-template-columns: 1fr !important; }
+          .features-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 600px) {
+          .features-grid { grid-template-columns: 1fr !important; }
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .navbar-nav { display: none !important; }
+          .hero-section { padding: 100px 20px 60px !important; }
+          .section-pad { padding: 70px 20px !important; }
+          .cta-pad { padding: 50px 24px !important; }
+          .navbar-inner { padding: 0 20px !important; }
+          .hero-btns { flex-direction: column !important; }
+          .nav-auth { gap: 6px !important; }
+          .btn-primary, .btn-ghost { padding: 10px 16px !important; font-size: 13px !important; }
+        }
       `}</style>
 
       {/* ── NAVBAR ──────────────────────────────────────────── */}
@@ -394,6 +380,7 @@ const Landing = () => {
           borderBottom: "1px solid rgba(255,255,255,0.05)",
           zIndex: 100,
         }}
+        className="navbar-inner"
       >
         <div className="shimmer-line" style={{ position: "absolute", bottom: 0, left: 0, right: 0 }} />
 
@@ -416,13 +403,13 @@ const Landing = () => {
           </span>
         </Link>
 
-        <nav style={{ display: "flex", gap: 2, alignItems: "center" }}>
+        <nav className="navbar-nav" style={{ display: "flex", gap: 2, alignItems: "center" }}>
           {navLinks.map(l => (
             <a key={l.label} href={l.href} className="nav-link">{l.label}</a>
           ))}
         </nav>
 
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div className="nav-auth" style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <Link to="/login">
             <button className="btn-ghost" style={{ padding: "8px 18px", fontSize: 14 }}>
               Sign In
@@ -439,6 +426,7 @@ const Landing = () => {
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section
         ref={heroRef}
+        className="hero-section top-5"
         style={{
           minHeight: "100vh",
           display: "flex",
@@ -451,14 +439,16 @@ const Landing = () => {
       >
         <AuroraMesh />
 
-        <div style={{
-          maxWidth: 1160, margin: "0 auto", width: "100%",
-          display: "grid", gridTemplateColumns: "1fr 1fr",
-          gap: 70, alignItems: "center", position: "relative", zIndex: 2,
-        }}>
+        <div
+          className="hero-grid"
+          style={{
+            maxWidth: 1160, margin: "0 auto", width: "100%",
+            display: "grid", gridTemplateColumns: "1fr 1fr",
+            gap: 70, alignItems: "center", position: "relative", zIndex: 2,
+          }}
+        >
           {/* Left: Copy */}
           <motion.div style={{ y: heroY }}>
-            {/* Pill badge */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -486,7 +476,6 @@ const Landing = () => {
               </span>
             </motion.div>
 
-            {/* Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -528,6 +517,7 @@ const Landing = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.52, duration: 0.6 }}
+              className="hero-btns"
               style={{ display: "flex", gap: 12, flexWrap: "wrap" }}
             >
               <Link to="/register/user">
@@ -543,7 +533,6 @@ const Landing = () => {
               </Link>
             </motion.div>
 
-            {/* Trusted by */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -576,8 +565,7 @@ const Landing = () => {
           </motion.div>
 
           {/* Right: Dashboard card */}
-          <div style={{ position: "relative", height: 500 }}>
-            {/* Main dashboard */}
+          <div className="hero-right" style={{ position: "relative", height: 500 }}>
             <motion.div
               initial={{ opacity: 0, x: 60, rotate: 2 }}
               animate={{ opacity: 1, x: 0, rotate: 0 }}
@@ -591,7 +579,6 @@ const Landing = () => {
                 boxShadow: "0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07)",
               }}
             >
-              {/* Card header */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
                 <div>
                   <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginBottom: 4, fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: "0.05em", textTransform: "uppercase" }}>Total bookings</div>
@@ -607,7 +594,6 @@ const Landing = () => {
                 }}>◈</div>
               </div>
 
-              {/* Bar chart */}
               <div style={{ display: "flex", gap: 5, alignItems: "flex-end", height: 72, marginBottom: 14 }}>
                 {[38, 60, 42, 75, 52, 85, 65, 92, 58, 78, 70, 100].map((h, i) => (
                   <motion.div
@@ -639,7 +625,6 @@ const Landing = () => {
               </div>
             </motion.div>
 
-            {/* Floating badges */}
             <FloatingBadge
               delay={0.9}
               emoji="🏠"
@@ -655,7 +640,6 @@ const Landing = () => {
               style={{ top: 10, right: -15, width: 215 }}
             />
 
-            {/* Floating illustration */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -675,7 +659,6 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* Scroll cue */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -707,9 +690,8 @@ const Landing = () => {
           position: "relative", overflow: "hidden",
         }}
       >
-        {/* Shimmer top */}
         <div className="shimmer-line" style={{ position: "absolute", top: 0, left: 0, right: 0 }} />
-        <div style={{ maxWidth: 1160, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
+        <div className="stats-grid" style={{ maxWidth: 1160, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
           {stats.map((s, i) => (
             <motion.div
               key={i}
@@ -737,7 +719,7 @@ const Landing = () => {
       </motion.section>
 
       {/* ── FEATURES ─────────────────────────────────────────── */}
-      <section id="features" style={{ padding: "110px 36px", maxWidth: 1160, margin: "0 auto" }}>
+      <section id="features" className="section-pad" style={{ padding: "110px 36px", maxWidth: 1160, margin: "0 auto" }}>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -762,7 +744,7 @@ const Landing = () => {
           </h2>
         </motion.div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px,1fr))", gap: 20 }}>
+        <div className="features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px,1fr))", gap: 20 }}>
           {features.map((f, i) => (
             <motion.div
               key={i}
@@ -814,6 +796,7 @@ const Landing = () => {
       {/* ── HOW IT WORKS ─────────────────────────────────────── */}
       <section
         id="how"
+        className="section-pad"
         style={{
           padding: "110px 36px",
           background: "rgba(255,255,255,0.012)",
@@ -822,7 +805,6 @@ const Landing = () => {
           position: "relative", overflow: "hidden",
         }}
       >
-        {/* BG accent */}
         <div style={{
           position: "absolute", width: 400, height: 400,
           background: "radial-gradient(circle, rgba(245,158,11,0.1) 0%, transparent 70%)",
@@ -855,7 +837,7 @@ const Landing = () => {
             </h2>
           </motion.div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24 }}>
+          <div className="steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24 }}>
             {[
               { n: "01", title: "Create your account", desc: "Sign up as a user or a service provider in under 2 minutes.", color: "#2DD4BF" },
               { n: "02", title: "Find or list services", desc: "Browse thousands of verified professionals, or list your own expertise.", color: "#F59E0B" },
@@ -869,7 +851,6 @@ const Landing = () => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.15, duration: 0.8 }}
               >
-                {/* Step number watermark */}
                 <div style={{
                   fontFamily: "'Fraunces', serif",
                   fontSize: 72, fontWeight: 900,
@@ -878,7 +859,6 @@ const Landing = () => {
                   letterSpacing: "-4px",
                 }}>{step.n}</div>
 
-                {/* Colored top accent line */}
                 <div style={{
                   height: 3, width: 40, borderRadius: 2,
                   background: `linear-gradient(90deg, ${step.color}, transparent)`,
@@ -916,7 +896,7 @@ const Landing = () => {
       </section>
 
       {/* ── CTA BANNER ───────────────────────────────────────── */}
-      <section style={{ padding: "110px 36px" }}>
+      <section className="section-pad" style={{ padding: "110px 36px" }}>
         <div style={{ maxWidth: 820, margin: "0 auto" }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
@@ -927,64 +907,63 @@ const Landing = () => {
               background: "rgba(8,12,28,0.9)",
               border: "1px solid rgba(45,212,191,0.2)",
               borderRadius: 30,
-              padding: "70px 56px",
-              textAlign: "center",
               position: "relative",
               overflow: "hidden",
               boxShadow: "0 40px 100px rgba(0,0,0,0.5)",
             }}
           >
-            {/* Animated corner accents */}
-            <div style={{ position: "absolute", top: 0, left: 0, width: 200, height: 200, background: "radial-gradient(circle at top left, rgba(45,212,191,0.15), transparent 60%)", pointerEvents: "none" }} />
-            <div style={{ position: "absolute", bottom: 0, right: 0, width: 200, height: 200, background: "radial-gradient(circle at bottom right, rgba(245,158,11,0.15), transparent 60%)", pointerEvents: "none" }} />
+            <div className="cta-pad" style={{ padding: "70px 56px", textAlign: "center" }}>
+              <div style={{ position: "absolute", top: 0, left: 0, width: 200, height: 200, background: "radial-gradient(circle at top left, rgba(45,212,191,0.15), transparent 60%)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", bottom: 0, right: 0, width: 200, height: 200, background: "radial-gradient(circle at bottom right, rgba(245,158,11,0.15), transparent 60%)", pointerEvents: "none" }} />
 
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              style={{
-                position: "absolute", top: -60, right: -60,
-                width: 180, height: 180,
-                border: "1px solid rgba(45,212,191,0.1)",
-                borderRadius: "50%", pointerEvents: "none",
-              }}
-            />
-            <motion.div
-              animate={{ rotate: [360, 0] }}
-              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-              style={{
-                position: "absolute", bottom: -80, left: -80,
-                width: 240, height: 240,
-                border: "1px solid rgba(245,158,11,0.08)",
-                borderRadius: "50%", pointerEvents: "none",
-              }}
-            />
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                style={{
+                  position: "absolute", top: -60, right: -60,
+                  width: 180, height: 180,
+                  border: "1px solid rgba(45,212,191,0.1)",
+                  borderRadius: "50%", pointerEvents: "none",
+                }}
+              />
+              <motion.div
+                animate={{ rotate: [360, 0] }}
+                transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                style={{
+                  position: "absolute", bottom: -80, left: -80,
+                  width: 240, height: 240,
+                  border: "1px solid rgba(245,158,11,0.08)",
+                  borderRadius: "50%", pointerEvents: "none",
+                }}
+              />
 
-            <h2 style={{
-              fontFamily: "'Fraunces', serif",
-              fontSize: "clamp(28px,4vw,46px)",
-              fontWeight: 900, letterSpacing: "-2px",
-              marginBottom: 18, position: "relative",
-            }}>
-              Ready to get started?
-            </h2>
-            <p style={{
-              fontSize: 16, color: "rgba(255,255,255,0.4)",
-              marginBottom: 40, maxWidth: 440, margin: "0 auto 40px",
-              lineHeight: 1.75, position: "relative",
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-            }}>
-              Join thousands of users and providers building better service experiences on ServiceHub.
-            </p>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", position: "relative" }}>
-              <Link to="/register/user">
-                <button className="btn-primary">Join as User →</button>
-              </Link>
-              <Link to="/register/provider">
-                <button className="btn-ghost">Become a Provider</button>
-              </Link>
-              <Link to="/admin/login">
-                <button className="btn-ghost">Admin Access</button>
-              </Link>
+              <h2 style={{
+                fontFamily: "'Fraunces', serif",
+                fontSize: "clamp(28px,4vw,46px)",
+                fontWeight: 900, letterSpacing: "-2px",
+                marginBottom: 18, position: "relative",
+              }}>
+                Ready to get started?
+              </h2>
+              <p style={{
+                fontSize: 16, color: "rgba(255,255,255,0.4)",
+                marginBottom: 40, maxWidth: 440, margin: "0 auto 40px",
+                lineHeight: 1.75, position: "relative",
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+              }}>
+                Join thousands of users and providers building better service experiences on ServiceHub.
+              </p>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", position: "relative" }}>
+                <Link to="/register/user">
+                  <button className="btn-primary">Join as User →</button>
+                </Link>
+                <Link to="/register/provider">
+                  <button className="btn-ghost">Become a Provider</button>
+                </Link>
+                <Link to="/admin/login">
+                  <button className="btn-ghost">Admin Access</button>
+                </Link>
+              </div>
             </div>
           </motion.div>
         </div>
