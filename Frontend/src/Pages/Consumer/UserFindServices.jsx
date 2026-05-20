@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export const UserFindServices = () => {
   const [providers, setProviders] = useState([]);
@@ -48,11 +49,12 @@ export const UserFindServices = () => {
         appointmentTime: form.appointmentTime,
         isUrgent: form.isUrgent,
       });
-      alert("✅ Appointment booked!");
+      toast.success("Appointment booked successfully!");
       setSelectedProvider(null);
       setForm({ requestType: "", appointmentDate: "", appointmentTime: "", isUrgent: false });
     } catch (err) {
       console.log("Booking error:", err.response?.data || err.message);
+      toast.error("Failed to book appointment.");
     }
   };
 

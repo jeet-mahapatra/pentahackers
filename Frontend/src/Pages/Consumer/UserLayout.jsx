@@ -80,7 +80,7 @@ const handleLogout = async () => {
 
       {/* SIDEBAR */}
       <aside
-        className={`fixed md:static z-50 h-full w-72 bg-[#0D1226]/80 backdrop-blur-3xl border-r border-white/5 flex flex-col justify-between p-6 transition-all duration-500 ease-in-out
+        className={`fixed md:static z-10 h-full w-72 bg-[#0D1226]/80 backdrop-blur-3xl border-r border-white/5 flex flex-col justify-between p-6 transition-all duration-500 ease-in-out
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
         <div>
@@ -135,7 +135,7 @@ const handleLogout = async () => {
       {/* MAIN SECTION */}
       <main className="flex-1 flex flex-col min-w-0 relative">
         {/* TOPBAR */}
-        <header className="flex justify-between items-center bg-[#080C1C]/60 backdrop-blur-md px-6 md:px-10 py-5 border-b border-white/5 z-30">
+        <header className="flex justify-between items-center bg-[#080C1C]/60 backdrop-blur-md px-6 md:px-10 py-5 border-b border-white/5 z-1">
           <button
             className="md:hidden text-white w-10 h-10 flex items-center justify-center bg-white/5 rounded-xl"
             onClick={() => setSidebarOpen(!sidebarOpen)}

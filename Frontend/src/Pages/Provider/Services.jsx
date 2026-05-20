@@ -174,13 +174,13 @@ const MyServices = () => {
             value={newSlot}
             onChange={(e) => setNewSlot(e.target.value)}
             placeholder="e.g. 10:00 AM - 11:30 AM"
-            className="flex-1 bg-white/[0.03] border border-white/[0.1] text-white placeholder-white/30 p-3.5 rounded-xl outline-none focus:border-[#2DD4BF]/50 focus:bg-white/[0.06] transition-all duration-300 font-medium"
+            className="flex-1 bg-white/[0.03] border border-white/[0.1] text-white placeholder-white/30 p-2.5 md:p-3.5 rounded-xl outline-none focus:border-[#2DD4BF]/50 focus:bg-white/[0.06] transition-all duration-300 font-medium"
           />
 
           <button
             onClick={addSlot}
             disabled={loading}
-            className="bg-gradient-to-br from-[#2DD4BF] to-[#0EA5E9] text-[#080C1C] px-6 py-3 rounded-xl font-bold tracking-wide shadow-[0_8px_20px_rgba(45,212,191,0.25)] hover:shadow-[0_12px_25px_rgba(45,212,191,0.4)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="bg-gradient-to-br from-[#2DD4BF] to-[#0EA5E9] text-[#080C1C] px-4 py-2 md:px-6 md:py-3 rounded-xl font-bold tracking-wide shadow-[0_8px_20px_rgba(45,212,191,0.25)] hover:shadow-[0_12px_25px_rgba(45,212,191,0.4)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {loading ? (
               <span className="flex items-center gap-2">

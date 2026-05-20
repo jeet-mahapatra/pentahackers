@@ -117,7 +117,7 @@ const handleLogout = async () => {
 
       {/* ================= SIDEBAR ================= */}
       <div
-        className={`fixed md:static z-30 h-full w-64 bg-[#080C1C]/90 backdrop-blur-2xl border-r border-white/[0.05] flex flex-col justify-between p-5 transition-transform duration-300 shadow-[20px_0_40px_rgba(0,0,0,0.5)]
+        className={`fixed md:static z-10 h-full w-64 bg-[#080C1C]/90 backdrop-blur-2xl border-r border-white/[0.05] flex flex-col justify-between p-5 transition-transform duration-300 shadow-[20px_0_40px_rgba(0,0,0,0.5)]
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
         {/* TOP */}

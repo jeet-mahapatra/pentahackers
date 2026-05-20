@@ -20,13 +20,13 @@ const UsersTab = ({ API_BASE }) => {
     const updateUserStatus = (id, status) => {
         toast(({ closeToast }) => (
             <ConfirmToast
-                message={`Initialize status change to ${status.toUpperCase()}?`}
+                message={`Are you sure you want to ${status.replace(/_/g, ' ')} this user?`}
                 onConfirm={async () => {
                     const promise = axios.patch(`${API_BASE}/users/${id}/status`, { status });
                     await toast.promise(promise, {
                         pending: 'Executing directive...',
-                        success: `Status updated to ${status} successfully.`,
-                        error: 'Unauthorized or failed to update.'
+                        success: `User status updated to ${status.toUpperCase()} ✅`,
+                        error: 'Failed to update status.'
                     });
                     fetchUsers();
                 }}

@@ -22,13 +22,13 @@ const ProvidersTab = ({ API_BASE }) => {
     const updateStatus = (id, status) => {
         toast(({ closeToast }) => (
             <ConfirmToast
-                message={`Authorize status update to ${status.toUpperCase()}?`}
+                message={`Are you sure you want to ${status.replace(/_/g, ' ')} this provider?`}
                 onConfirm={async () => {
                     const promise = axios.patch(`${API_BASE}/providers/${id}/status`, { status });
                     await toast.promise(promise, {
-                        pending: 'Authorizing...',
-                        success: 'Registry updated! ✅',
-                        error: 'Update failed ❌'
+                        pending: 'Updating status...',
+                        success: 'Status updated successfully ✅',
+                        error: 'Failed to update status ❌'
                     });
                     fetchProviders();
                 }}

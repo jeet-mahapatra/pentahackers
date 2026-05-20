@@ -8,7 +8,7 @@ const router = express.Router();
 // ─── DASHBOARD OVERVIEW STATS ────────────────────────────────────────────────
 router.get("/dashboard-stats", async (req, res) => {
     try {
-        const totalUsers = await User.countDocuments();
+        const totalUsers = await User.countDocuments({ role: 'user' });
         const providers = await Provider.find({}, 'verificationStatus');
 
         const providerStats = {

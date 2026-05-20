@@ -46,7 +46,7 @@ export const UserRegister = () => {
         <div className="bg-[#0D1226]/40 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 sm:p-10 shadow-2xl">
           <div className="text-center mb-8">
             <span className="text-[#2DD4BF] text-xs font-bold tracking-[0.2em] uppercase">Get Started</span>
-            <h2 className="text-3xl sm:text-4xl font-bold font-serif mt-2">Create Account</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold font-serif mt-2">Create Account <span className="text-[#2DD4BF]/80 block">as a User</span></h2>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
