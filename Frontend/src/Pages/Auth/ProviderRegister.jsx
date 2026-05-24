@@ -19,6 +19,29 @@ const ALL_SERVICES = [
   { category: "Lifestyle", items: ["Cook", "Cleaner", "Driver", "Beautician"] },
 ];
 
+// Specialization hints per service type to guide the provider
+const SPECIALIZATION_HINTS = {
+  Doctor: "e.g. Cardiologist, Dermatologist, Pediatrician, Orthopedist",
+  Nurse: "e.g. ICU Nurse, Pediatric Nurse, Home Care Nurse",
+  Lawyer: "e.g. Criminal Law, Family Law, Corporate Law, Civil Rights",
+  Architect: "e.g. Residential, Commercial, Interior, Landscape",
+  Tutor: "e.g. Mathematics, Physics, English, Computer Science",
+  "Fitness Trainer": "e.g. Yoga, Strength Training, Cardio, CrossFit",
+  Photographer: "e.g. Wedding, Portrait, Product, Wildlife",
+  "Computer Technician": "e.g. Networking, Hardware Repair, Cybersecurity, Data Recovery",
+  "Event Planner": "e.g. Weddings, Corporate Events, Birthday Parties",
+  Electrician: "e.g. Residential Wiring, Industrial, Solar Installation",
+  Plumber: "e.g. Pipe Fitting, Drainage, Water Heater Installation",
+  Carpenter: "e.g. Furniture, Cabinetry, Flooring, Renovation",
+  Mechanic: "e.g. Two-Wheeler, Four-Wheeler, Diesel Engine, Auto Electrical",
+  Painter: "e.g. Interior, Exterior, Texture Painting, Waterproofing",
+  "AC Technician": "e.g. Window AC, Split AC, Central AC, HVAC",
+  Cook: "e.g. North Indian, South Indian, Continental, Baking",
+  Cleaner: "e.g. Deep Cleaning, Carpet Cleaning, Office Cleaning",
+  Driver: "e.g. School Van, Cab, Corporate Chauffeur, Outstation",
+  Beautician: "e.g. Bridal Makeup, Hair Styling, Skin Care, Nail Art",
+};
+
 const EXPERIENCE_OPTIONS = [
   { value: "< 1 year", label: "< 1 year" },
   { value: "1–2 years", label: "1–2 years" },
@@ -133,17 +156,25 @@ export const ProviderRegister = () => {
 
   const [form, setForm] = useState({
     name: "", email: "", phone: "", password: "", confirmPassword: "",
-    serviceType: "", experience: "", address: "", city: "", pincode: "", bio: "",
+    serviceType: "", specialization: "", experience: "", address: "", city: "", pincode: "", bio: "",
   });
 
   const [files, setFiles] = useState({ idProof: null, photoproof: null, certification: null });
 
   const isProfessional = PROFESSIONAL_SERVICES.has(form.serviceType);
+  const specializationHint = form.serviceType ? SPECIALIZATION_HINTS[form.serviceType] : null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: "" }));
+  };
+
+  // Reset specialization when service type changes
+  const handleServiceTypeChange = (e) => {
+    const { value } = e.target;
+    setForm(f => ({ ...f, serviceType: value, specialization: "" }));
+    setErrors(prev => ({ ...prev, serviceType: "" }));
   };
 
   const handleFileChange = (e) => {
@@ -167,6 +198,7 @@ export const ProviderRegister = () => {
       if (!form.address.trim()) e.address = "Street address required";
       if (!form.city.trim()) e.city = "City is required";
       if (!/^\d{6}$/.test(form.pincode)) e.pincode = "Enter valid 6-digit PIN";
+      // specialization is optional — no validation needed
     }
     if (step === 2) {
       if (!files.idProof) e.idProof = "Government ID proof is required";
@@ -185,7 +217,9 @@ export const ProviderRegister = () => {
     setSubmitError("");
     try {
       const data = new FormData();
-      Object.entries(form).forEach(([k, v]) => { if (k !== "confirmPassword") data.append(k, v); });
+      Object.entries(form).forEach(([k, v]) => {
+        if (k !== "confirmPassword") data.append(k, v);
+      });
       data.append("idProof", files.idProof);
       data.append("photoproof", files.photoproof);
       if (isProfessional && files.certification) data.append("certification", files.certification);
@@ -235,7 +269,7 @@ export const ProviderRegister = () => {
     <div key="s1" className="space-y-4">
       <Field label="Service Category" error={errors.serviceType}>
         <div className="relative">
-          <select name="serviceType" value={form.serviceType} onChange={handleChange}
+          <select name="serviceType" value={form.serviceType} onChange={handleServiceTypeChange}
             className="w-full pl-4 pr-8 py-3 rounded-xl appearance-none
               bg-slate-900/60 border border-slate-700/40 text-slate-100 text-sm font-mono
               focus:outline-none focus:border-teal-500/50 transition-all duration-200">
@@ -260,6 +294,43 @@ export const ProviderRegister = () => {
           )}
         </AnimatePresence>
       </Field>
+
+      {/* SPECIALIZATION FIELD — appears after service type is selected */}
+      <AnimatePresence>
+        {form.serviceType && (
+          <motion.div
+            key="specialization"
+            initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Field label="Specialization" hint="(optional)" error={errors.specialization}>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm pointer-events-none">🎯</span>
+                <input
+                  name="specialization"
+                  type="text"
+                  placeholder={specializationHint || "Your area of expertise or specialization"}
+                  value={form.specialization}
+                  onChange={handleChange}
+                  autoComplete="off"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl
+                    bg-slate-900/60 border border-slate-700/40
+                    text-slate-100 placeholder-slate-600 text-sm font-mono
+                    focus:outline-none focus:border-teal-500/50 focus:bg-slate-900/80
+                    transition-all duration-200"
+                />
+              </div>
+              {specializationHint && (
+                <p className="mt-1.5 text-[11px] text-slate-600 leading-relaxed">
+                  💡 {specializationHint}
+                </p>
+              )}
+            </Field>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Field label="Experience Level" error={errors.experience}>
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
@@ -307,7 +378,8 @@ export const ProviderRegister = () => {
               <div>
                 <p className="text-sm font-bold text-amber-300 mb-0.5">Professional — 3 Documents Required</p>
                 <p className="text-xs text-amber-400/55 leading-relaxed">
-                  As a <strong className="text-amber-400">{form.serviceType}</strong>, you need to submit your government ID, a photograph, <em>and</em> your professional licence or certification.
+                  As a <strong className="text-amber-400">{form.serviceType}</strong>
+                  {form.specialization && <span> ({form.specialization})</span>}, you need to submit your government ID, a photograph, <em>and</em> your professional licence or certification.
                 </p>
               </div>
             </div>
@@ -360,6 +432,7 @@ export const ProviderRegister = () => {
       ]} />
       <ReviewSection title="Service Details" icon="🔧" rows={[
         { label: "Service", value: form.serviceType },
+        ...(form.specialization ? [{ label: "Specialization", value: form.specialization }] : []),
         { label: "Category", value: isProfessional ? "Professional ⭐" : "Standard 🔧" },
         { label: "Experience", value: form.experience },
         { label: "Address", value: [form.address, form.city, form.pincode].filter(Boolean).join(", ") },

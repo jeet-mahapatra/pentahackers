@@ -26,9 +26,9 @@ const ContactChannels = () => {
         {
             icon: <Mail size={24} className="text-[#2DD4BF]" />,
             title: "Email Support",
-            desc: "tourguy4002@gmail.com",
+            desc: "pentahacker2025@gmail.com",
             action: "Send Email",
-            link: "mailto:tourguy4002@gmail.com?subject=Support Request",
+            link: "mailto:pentahacker2025@gmail.com?subject=Support Request",
             accent: "#2DD4BF",
             hoverBorder: "hover:border-[#2DD4BF]/40",
             glow: "rgba(45,212,191,0.12)"

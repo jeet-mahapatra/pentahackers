@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
@@ -17,6 +16,8 @@ export const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState("overview");
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    console.log("Admin Dashboard Rendered - User:", user);
+
     const tabs = [
         { id: "overview", label: "Overview", icon: "📊" },
         { id: "providers", label: "Providers", icon: "🪪" },
@@ -27,12 +28,11 @@ export const AdminDashboard = () => {
 
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-    // Added Logout Handler
     const handleLogout = async () => {
         try {
             await axios.post(`${import.meta.env.VITE_BACKEND}/api/auth/logout`);
             toast.success("Logged out successfully");
-            window.location.href = "/"; // Redirect to home or login page
+            window.location.href = "/";
         } catch (error) {
             toast.error("⚠️ Failed to logout");
         }
@@ -80,9 +80,8 @@ export const AdminDashboard = () => {
                         <p className="text-xs font-bold truncate text-white">{user?.username || "Admin"}</p>
                         <p className="text-[10px] text-white/30 tracking-widest uppercase font-black leading-none mt-1">Root Access</p>
                     </div>
-                    {/* Added Logout Button */}
-                    <button 
-                        onClick={handleLogout} 
+                    <button
+                        onClick={handleLogout}
                         className="text-white/40 hover:text-red-400 transition-colors p-1"
                         title="Logout"
                     >
@@ -116,12 +115,12 @@ export const AdminDashboard = () => {
                 </button>
             </div>
 
-            {/* ── DESKTOP SIDEBAR ── (Reduced z-index to 40) */}
+            {/* ── DESKTOP SIDEBAR ── */}
             <aside className="hidden md:flex w-72 bg-[#0D1226]/80 backdrop-blur-3xl border-r border-white/5 flex-col z-10">
                 <SidebarContent />
             </aside>
 
-            {/* ── MOBILE MENU OVERLAY ── (Reduced z-index to 50) */}
+            {/* ── MOBILE MENU OVERLAY ── */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <>
@@ -147,7 +146,6 @@ export const AdminDashboard = () => {
 
             {/* ── MAIN CONTENT ── */}
             <main className="flex-1 relative overflow-y-auto custom-scrollbar bg-[#080C1C] z-10">
-                {/* Background Decor */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
                     <motion.div
                         animate={{ x: [0, 50, 0], y: [0, -30, 0] }}

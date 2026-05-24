@@ -32,6 +32,14 @@ const ProviderSchema = new Schema({
         type: String,
         default: null
     },
+    // Specific area of expertise within the service type
+    // e.g. "Cardiologist" for a Doctor, "Criminal Law" for a Lawyer
+    specialization: {
+        type: String,
+        default: null,
+        trim: true,
+        maxlength: 100
+    },
     // Whether this provider is a credentialed professional (Doctor, Lawyer, Tutor etc.)
     isProfessional: {
         type: Boolean,
@@ -49,6 +57,10 @@ const ProviderSchema = new Schema({
     timeSlots: {
         type: [String],
         default: []
+    },
+    fixedPrice: {
+        type: Number,
+        default: 0
     },
     // Structured address
     address: {
@@ -80,7 +92,7 @@ const ProviderSchema = new Schema({
         enum: ['pending', 'approved', 'rejected', 'suspended', 'schedule_for_deletion'],
         default: 'pending'
     },
-    // NEW: Used for the 7-day grace period
+    // Used for the 7-day grace period
     deletionDate: {
         type: Date,
         default: null

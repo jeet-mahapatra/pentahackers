@@ -55,7 +55,7 @@ const getMe = async (req, res) => {
     // If not found → check Provider
     if (!account) {
       account = await Provider.findById(req.user.id).select(
-        "_id username email role phone serviceType isProfessional experience bio timeSlots address documents verificationStatus deletionDate createdAt updatedAt"
+        "_id username email role phone serviceType specialization isProfessional experience bio timeSlots fixedPrice address documents verificationStatus deletionDate createdAt updatedAt"
       );
       if (account) {
         accountType = "provider";

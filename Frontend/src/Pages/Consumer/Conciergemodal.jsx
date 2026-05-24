@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     X, Send, ChevronDown, Loader2,
@@ -25,14 +26,12 @@ const PRIORITIES = [
     { value: 'urgent', label: 'Urgent', color: '#FB923C' },
 ];
 
-// Backdrop overlay variants
 const overlayVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.4 } },
     exit: { opacity: 0, transition: { duration: 0.3 } },
 };
 
-// Modal panel variants
 const panelVariants = {
     hidden: { opacity: 0, scale: 0.95, y: 40 },
     visible: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 300 } },
@@ -118,7 +117,11 @@ const ConciergeModal = ({ isOpen, onClose }) => {
         }, 300);
     };
 
-    return (
+    // ── KEY FIX: render directly into document.body via a portal.
+    // This removes the modal from any nested stacking context created by the
+    // sidebar or layout divs, so its z-index is always evaluated against the
+    // root stacking context. z-[9999] then beats every other layer.
+    const modalContent = (
         <AnimatePresence>
             {isOpen && (
                 <motion.div
@@ -127,7 +130,9 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#080C1C]/80 backdrop-blur-xl"
+                    // z-[9999] guarantees this sits above sidebars (z-50 / z-[100])
+                    // on every screen size, because it's now a root-level stacking context.
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-[#080C1C]/80 backdrop-blur-xl"
                     onClick={handleClose}
                     style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}
                 >
@@ -141,36 +146,32 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                         onClick={e => e.stopPropagation()}
                         className="custom-scrollbar relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#080C1C]/90 backdrop-blur-3xl border border-[#2DD4BF]/20 rounded-[32px] shadow-[0_40px_100px_rgba(0,0,0,0.6)]"
                     >
-                        {/* ── Landing Page Animated Aurora Mesh (Modal Sized) ── */}
+                        {/* Aurora Mesh Background */}
                         <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-[32px] z-0">
-                            {/* Teal Blob */}
                             <motion.div
                                 animate={{ x: [0, 40, -20, 0], y: [0, -30, 40, 0] }}
                                 transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
                                 className="absolute w-[300px] h-[300px] rounded-full top-[-10%] left-[-10%] blur-[50px]"
                                 style={{ background: "radial-gradient(circle, rgba(45,212,191,0.15) 0%, transparent 70%)" }}
                             />
-                            {/* Amber Blob */}
                             <motion.div
                                 animate={{ x: [0, -50, 30, 0], y: [0, 40, -40, 0] }}
                                 transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
                                 className="absolute w-[400px] h-[400px] rounded-full bottom-[-10%] right-[-10%] blur-[60px]"
                                 style={{ background: "radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%)" }}
                             />
-                            {/* Grid Overlay */}
                             <div className="absolute inset-0" style={{
                                 backgroundImage: `linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)`,
                                 backgroundSize: "40px 40px"
                             }} />
                         </div>
 
-                        {/* ── Header ── */}
+                        {/* Header */}
                         <div className="sticky top-0 z-30 flex items-center justify-between px-8 pt-8 pb-5 bg-[#080C1C]/80 backdrop-blur-xl border-b border-white/[0.05]">
-                            {/* Shimmer Line from Landing */}
                             <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#2DD4BF]/60 to-transparent animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
 
                             <div className="flex items-center gap-4 relative z-10">
-                                <motion.div 
+                                <motion.div
                                     whileHover={{ rotate: 15, scale: 1.05 }}
                                     className="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#2DD4BF]/20 to-[#0EA5E9]/20 border border-[#2DD4BF]/30 flex items-center justify-center shadow-[0_0_20px_rgba(45,212,191,0.2)]"
                                 >
@@ -191,11 +192,10 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                             </button>
                         </div>
 
-                        {/* ── Body ── */}
+                        {/* Body */}
                         <div className="px-8 py-8 relative z-20">
                             <AnimatePresence mode="wait">
                                 {success ? (
-                                    /* ── SUCCESS STATE ── */
                                     <motion.div
                                         key="success"
                                         initial={{ opacity: 0, scale: 0.9 }}
@@ -203,7 +203,6 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                                         exit={{ opacity: 0 }}
                                         className="flex flex-col items-center text-center py-16 gap-6 relative"
                                     >
-                                        {/* Spinning Orbital Rings from Landing CTA */}
                                         <motion.div
                                             animate={{ rotate: [0, 360] }}
                                             transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
@@ -218,7 +217,7 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                                         <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-[#2DD4BF]/20 to-[#0EA5E9]/20 flex items-center justify-center border border-[#2DD4BF]/30 shadow-[0_0_40px_rgba(45,212,191,0.3)] z-10">
                                             <CheckCircle2 size={48} className="text-[#2DD4BF]" />
                                         </div>
-                                        
+
                                         <div className="relative z-10">
                                             <h3 className="text-3xl font-black text-white tracking-tight mb-3" style={{ fontFamily: "'Fraunces', serif" }}>
                                                 Request Submitted!
@@ -238,9 +237,7 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                                         </motion.button>
                                     </motion.div>
                                 ) : (
-                                    /* ── FORM STATE ── */
                                     <motion.div key="form" className="flex flex-col gap-6">
-
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                             <InputField label="Your Name" error={errors.senderName}>
                                                 <input type="text" value={form.senderName} onChange={e => handleChange('senderName', e.target.value)} placeholder="John Doe" className={inputCls} />
@@ -277,11 +274,10 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                                                             key={p.value}
                                                             type="button"
                                                             onClick={() => handleChange('priority', p.value)}
-                                                            className={`flex-1 py-3 rounded-[14px] text-[13px] font-bold border transition-all duration-300 ${
-                                                                form.priority === p.value
-                                                                    ? `bg-[${p.color}]/10 border-[${p.color}]/40 text-[${p.color}] shadow-[0_4px_15px_rgba(45,212,191,0.15)]`
+                                                            className={`flex-1 py-3 rounded-[14px] text-[13px] font-bold border transition-all duration-300 ${form.priority === p.value
+                                                                    ? 'shadow-[0_4px_15px_rgba(45,212,191,0.15)]'
                                                                     : 'bg-white/[0.02] border-white/[0.05] text-white/40 hover:bg-white/[0.06] hover:text-white/80'
-                                                            }`}
+                                                                }`}
                                                             style={form.priority === p.value ? { color: p.color, borderColor: `${p.color}66`, backgroundColor: `${p.color}1A` } : {}}
                                                         >
                                                             {p.label}
@@ -301,7 +297,6 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                                             </motion.p>
                                         )}
 
-                                        {/* Landing Page style Primary Button */}
                                         <motion.button
                                             whileHover={{ scale: 1.02, y: -2 }}
                                             whileTap={{ scale: 0.98 }}
@@ -312,7 +307,6 @@ const ConciergeModal = ({ isOpen, onClose }) => {
                                             <span className="relative z-10 flex items-center gap-2">
                                                 {loading ? <><Loader2 size={20} className="animate-spin" /> Sending…</> : <><Send size={18} /> Submit Request</>}
                                             </span>
-                                            {/* Button Hover Glow Overlay */}
                                             <div className="absolute inset-0 bg-gradient-to-br from-white/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                                         </motion.button>
                                     </motion.div>
@@ -347,6 +341,9 @@ const ConciergeModal = ({ isOpen, onClose }) => {
             `}</style>
         </AnimatePresence>
     );
+
+    // Portal renders into document.body — completely outside any layout stacking context
+    return createPortal(modalContent, document.body);
 };
 
 export default ConciergeModal;

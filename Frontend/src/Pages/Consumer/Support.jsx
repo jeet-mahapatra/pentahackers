@@ -180,7 +180,7 @@ const Support = () => {
 
                         {/* Ghost Button styling for Email */}
                         <a
-                            href="mailto:support@servicehub.com"
+                            href="mailto:pentahacker2025@gmail.com?subject=Support Request"
                             className="bg-white/5 border border-white/10 text-white/80 px-8 py-3.5 rounded-xl font-semibold hover:bg-white/10 hover:border-white/20 hover:text-white hover:-translate-y-0.5 transition-all duration-300 backdrop-blur-md w-full sm:w-auto text-center"
                         >
                             Send us an Email

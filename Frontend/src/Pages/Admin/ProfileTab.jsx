@@ -2,17 +2,22 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-
 const ProfileTab = ({ adminId, API_BASE }) => {
     const [profile, setProfile] = useState({
         username: "", email: "", fullName: "", phoneNumber: "", bio: "",
-        address: "", state: "", country: "", pinCode: "", timezone: "" // 🟢 Added state defaults
+        address: "", state: "", country: "", pinCode: "", timezone: ""
     });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         console.log("Admin ID:", adminId);
-        if (!adminId) return;
+
+        // 🚨 FIX: Return early if adminId hasn't loaded from context yet
+        if (!adminId) {
+            setLoading(true);
+            return;
+        }
+
         axios.get(`${API_BASE}/profile/${adminId}`)
             .then(res => {
                 const data = res.data.admin;
@@ -31,7 +36,7 @@ const ProfileTab = ({ adminId, API_BASE }) => {
             })
             .catch(() => toast.error("Failed to load profile"))
             .finally(() => setLoading(false));
-    }, [adminId]);
+    }, [adminId, API_BASE]); // Added API_BASE to dependency array for completeness
 
     const handleChange = (e) => {
         setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -47,7 +52,10 @@ const ProfileTab = ({ adminId, API_BASE }) => {
         });
     };
 
-    if (loading) return <p className="animate-pulse text-teal-400">Loading profile...</p>;
+    // 🚨 FIX: Keep pulse active if loading is true OR if we are waiting on the adminId
+    if (loading || !adminId) {
+        return <p className="animate-pulse text-teal-400">Loading profile...</p>;
+    }
 
     return (
         <div className="max-w-4xl mx-auto space-y-6 pb-10">

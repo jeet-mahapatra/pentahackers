@@ -52,8 +52,8 @@ router.post(
 
 // ─── REGISTER PROVIDER ────────────────────────────────────────────────────────
 // Accepts 3 files via multipart:
-//   - idProof     : required for all
-//   - photoproof  : required for all
+//   - idProof       : required for all
+//   - photoproof    : required for all
 //   - certification : required only for professional service types
 router.post(
   "/register/provider",
@@ -78,7 +78,10 @@ router.post(
     if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
 
     try {
-      const { name, email, password, phone, serviceType, experience, address, city, pincode, bio } = req.body;
+      const {
+        name, email, password, phone, serviceType, specialization,
+        experience, address, city, pincode, bio
+      } = req.body;
 
       const username = name.trim().toLowerCase();
       const normalizedEmail = email.toLowerCase();
@@ -87,6 +90,10 @@ router.post(
       // Check duplicate
       const existing = await Provider.findOne({ $or: [{ username }, { email: normalizedEmail }] });
       if (existing) return res.status(400).json({ success: false, message: "Provider already exists" });
+
+      // Check duplicate in users collection to prevent username/email conflicts across roles
+      const existingUser = await User.findOne({ email: normalizedEmail });
+      if (existingUser) return res.status(400).json({ success: false, message: "Email already in use by a user account" });
 
       // Validate files
       const idProofPath = req.files?.idProof?.[0]?.path;
@@ -109,19 +116,16 @@ router.post(
         uploadOnCloudinary(photoProofPath)
       ];
 
-      // Only add certification upload if it's required and exists
       if (isProfessional && certificationPath) {
         uploadPromises.push(uploadOnCloudinary(certificationPath));
       }
 
-      // Execute all uploads in parallel
       const uploadResults = await Promise.all(uploadPromises);
 
       const idProofUpload = uploadResults[0];
       const photoProofUpload = uploadResults[1];
       const certificationUpload = isProfessional && certificationPath ? uploadResults[2] : null;
 
-      // Check if essential uploads succeeded
       if (!idProofUpload || !photoProofUpload) {
         return res.status(500).json({ success: false, message: "File upload failed" });
       }
@@ -139,6 +143,8 @@ router.post(
         phone,
         role: "pending_provider",
         serviceType,
+        // Save specialization if provided (optional field)
+        specialization: specialization?.trim() || null,
         isProfessional,
         experience,
         bio: bio || null,
@@ -184,7 +190,12 @@ router.post(
         : loginIdentifier.toLowerCase();
 
       let user = await User.findOne({ $or: [{ username: sanitized }, { email: sanitized }] });
-      if (!user) user = await Provider.findOne({ $or: [{ username: sanitized }, { email: sanitized }] });
+      let isProvider = false;
+
+      if (!user) {
+        user = await Provider.findOne({ $or: [{ username: sanitized }, { email: sanitized }] });
+        isProvider = !!user;
+      }
 
       if (!user) return res.status(400).json({ success: false, message: "Invalid credentials" });
 
@@ -209,10 +220,25 @@ router.post(
         maxAge: 24 * 60 * 60 * 1000,
       });
 
+      // Build response payload
+      // Include verificationStatus for providers (used to check suspension)
+      // Include status for users (used to check suspension)
+      const userPayload = {
+        id: user._id,
+        username: user.username,
+        role: user.role,
+      };
+
+      if (isProvider) {
+        userPayload.verificationStatus = user.verificationStatus;
+      } else {
+        userPayload.status = user.status;
+      }
+
       return res.status(200).json({
         success: true,
         message: "Login successful",
-        user: { id: user._id, username: user.username, role: user.role },
+        user: userPayload,
       });
 
     } catch (error) {
@@ -237,7 +263,6 @@ router.post(
       const { email, password } = req.body;
       const normalizedEmail = email.toLowerCase();
 
-      // Only find users strictly assigned the 'admin' role
       const admin = await User.findOne({ email: normalizedEmail, role: 'admin' });
 
       if (!admin) return res.status(400).json({ success: false, message: "Invalid admin credentials" });
@@ -253,7 +278,7 @@ router.post(
 
       res.cookie("token", token, {
         httpOnly: true,
-        secure: false, // set to true in production
+        secure: false,
         sameSite: "lax",
         maxAge: 24 * 60 * 60 * 1000,
       });
@@ -354,43 +379,42 @@ router.post(
 );
 
 router.put("/profile/update", authMiddleware, async (req, res) => {
-    try {
-        const { 
-            fullName, phoneNumber, bio, 
-            address, state, country, pinCode, timezone 
-        } = req.body;
+  try {
+    const {
+      fullName, phoneNumber, bio,
+      address, state, country, pinCode, timezone
+    } = req.body;
 
-        // Fetch user and update optional fields
-        const updatedUser = await User.findByIdAndUpdate(
-            req.user.id,
-            {
-                $set: {
-                    fullName,
-                    phoneNumber,
-                    bio,
-                    address,
-                    state,
-                    country,
-                    pinCode,
-                    timezone
-                }
-            },
-            { new: true, runValidators: true }
-        ).select("-password");
-
-        if (!updatedUser) {
-            return res.status(404).json({ success: false, message: "Identity not found" });
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        $set: {
+          fullName,
+          phoneNumber,
+          bio,
+          address,
+          state,
+          country,
+          pinCode,
+          timezone
         }
+      },
+      { new: true, runValidators: true }
+    ).select("-password");
 
-        return res.status(200).json({
-            success: true,
-            message: "Profile updated successfully",
-            user: updatedUser
-        });
-    } catch (error) {
-        console.error("UPDATE ERROR:", error.message);
-        return res.status(500).json({ success: false, message: "Server error during update" });
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "Identity not found" });
     }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error("UPDATE ERROR:", error.message);
+    return res.status(500).json({ success: false, message: "Server error during update" });
+  }
 });
 
 export default router;
