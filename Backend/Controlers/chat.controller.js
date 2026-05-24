@@ -46,8 +46,6 @@ const verifyChatAccess = async (
 
 
 
-
-
 // GET /api/chat/history/:appointmentId
 // Now accepts a comma-separated query param ?all=id1,id2,id3 for multi-appointment history
 export const getChatHistory = async (req, res) => {
