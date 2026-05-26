@@ -107,7 +107,7 @@ export const UserLayout = () => {
             </div>
             <div>
               <h2 className="font-bold font-serif italic text-xl leading-none">
-                Service<span className="text-[#2DD4BF]">Hub</span>
+                Easy<span className="text-[#2DD4BF]">Find</span>
               </h2>
               <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-black mt-1">
                 EasyFind Protocol

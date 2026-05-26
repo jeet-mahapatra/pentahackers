@@ -399,7 +399,7 @@ const Landing = () => {
             fontFamily: "'Fraunces', serif",
             fontSize: 19, fontWeight: 800, letterSpacing: "-0.5px",
           }}>
-            Service<span style={{ color: "#2DD4BF" }}>Hub</span>
+            Easy<span style={{ color: "#2DD4BF" }}>Find</span>
           </span>
         </Link>
 
@@ -730,7 +730,7 @@ const Landing = () => {
             fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase",
             color: "#2DD4BF", fontWeight: 700, marginBottom: 14,
             fontFamily: "'Plus Jakarta Sans', sans-serif",
-          }}>Why ServiceHub</p>
+          }}>Why EasyFind</p>
           <h2 style={{
             fontFamily: "'Fraunces', serif", fontSize: "clamp(28px,4vw,46px)",
             fontWeight: 900, letterSpacing: "-2px",
@@ -951,7 +951,7 @@ const Landing = () => {
                 lineHeight: 1.75, position: "relative",
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
               }}>
-                Join thousands of users and providers building better service experiences on ServiceHub.
+                Join thousands of users and providers building better service experiences on EasyFind.
               </p>
               <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", position: "relative" }}>
                 <Link to="/register/user">
@@ -990,7 +990,7 @@ const Landing = () => {
           </span>
         </div>
         <p style={{ fontSize: 13, color: "rgba(255,255,255,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-          © {new Date().getFullYear()} ServiceHub. All rights reserved.
+          © {new Date().getFullYear()} EasyFind. All rights reserved.
         </p>
         <div style={{ display: "flex", gap: 22 }}>
           {["Privacy", "Terms", "Support"].map(l => (

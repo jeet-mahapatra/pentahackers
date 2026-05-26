@@ -155,7 +155,7 @@ const ProviderLayout = () => {
             </div>
             <div>
               <h2 className="font-extrabold text-xl tracking-tight" style={{ fontFamily: "'Fraunces', serif" }}>
-                Service<span className="text-[#2DD4BF]">Hub</span>
+                Easy<span className="text-[#2DD4BF]">Find</span>
               </h2>
               <p className="text-[11px] uppercase tracking-wider text-white/40 font-bold mt-0.5">
                 Provider Panel
