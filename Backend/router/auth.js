@@ -36,8 +36,13 @@ router.post(
       const username = name.trim().toLowerCase();
       const normalizedEmail = email.toLowerCase();
 
+      // Check if username or email already exists in either collection to prevent conflicts
       const existingUser = await User.findOne({ $or: [{ username }, { email: normalizedEmail }] });
       if (existingUser) return res.status(400).json({ success: false, message: "User already exists" });
+
+      // Also check providers collection to prevent email conflicts across roles
+      const existingProvider = await Provider.findOne({ email: normalizedEmail });
+      if (existingProvider) return res.status(400).json({ success: false, message: "Provider already exists" });
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await User.create({ username, email: normalizedEmail, password: hashedPassword });
